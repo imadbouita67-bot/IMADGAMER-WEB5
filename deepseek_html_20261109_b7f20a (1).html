@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMADGAMER — PÁGINA OFICIAL 🎮</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#05060a;color:#e6eaf2;font-family:'Rajdhani',sans-serif;overflow-x:hidden;line-height:1.6;-webkit-font-smoothing:antialiased;transition:padding-top .5s cubic-bezier(.2,.8,.2,1)}
+
+/* ===== VARIABLES ===== */
+:root{
+  --bg:#05060a;--bg-2:#0a0d15;--panel:rgba(14,18,28,.75);--line:rgba(90,140,255,.15);
+  --blue:#4d9fff;--blue-soft:#7db8ff;--green:#3dff88;--purple:#a86bff;
+  --text:#e6eaf2;--muted:#8892a6;--discord:#5865F2;--banner-h:44px;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:#05060a}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#4d9fff,#a86bff);border-radius:10px}
+
+/* ===== SCROLL PROGRESS ===== */
+.scroll-progress{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,#4d9fff,#a86bff,#3dff88);z-index:9999;box-shadow:0 0 12px #4d9fff;transition:width .1s linear}
+
+/* ===== CANVAS ===== */
+#fx-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.7}
+
+/* ===== ANNOUNCEMENT BANNER ===== */
+.announce-banner{position:fixed;top:0;left:0;right:0;height:var(--banner-h);z-index:1001;display:flex;align-items:center;justify-content:center;padding:0 3rem;background:linear-gradient(90deg,rgba(77,159,255,.22),rgba(168,107,255,.22),rgba(61,255,136,.22));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(61,255,136,.55);box-shadow:0 4px 30px rgba(61,255,136,.2);transform:translateY(-100%);transition:transform .6s cubic-bezier(.2,.8,.2,1);pointer-events:none;overflow:hidden}
+.announce-banner::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:announceShine 4s ease-in-out infinite;pointer-events:none;z-index:1}
+@keyframes announceShine{0%{left:-100%}50%,100%{left:100%}}
+body.show-banner .announce-banner{transform:translateY(0);pointer-events:auto;animation:announceGlow 3s ease-in-out infinite}
+@keyframes announceGlow{0%,100%{box-shadow:0 4px 30px rgba(61,255,136,.2)}50%{box-shadow:0 4px 40px rgba(61,255,136,.5),0 0 60px rgba(77,159,255,.3)}}
+.announce-inner{display:flex;align-items:center;gap:1rem;justify-content:center;flex-wrap:nowrap;position:relative;z-index:2;max-width:100%}
+.announce-new{font-family:'Orbitron',sans-serif;font-weight:900;font-size:.6rem;letter-spacing:3px;padding:.28rem .65rem;background:linear-gradient(135deg,#3dff88,#4d9fff);color:#05060a;border-radius:2px;text-transform:uppercase;box-shadow:0 0 12px rgba(61,255,136,.6);animation:newBadgePulse 1.6s ease-in-out infinite;flex-shrink:0;line-height:1}
+.announce-text{font-family:'Orbitron',sans-serif;font-weight:500;font-size:.72rem;letter-spacing:2px;color:#fff;text-transform:uppercase;text-shadow:0 0 10px rgba(77,159,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.announce-cta{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;text-decoration:none;font-family:'Orbitron',sans-serif;font-weight:700;font-size:.62rem;letter-spacing:2.5px;padding:.45rem .95rem;background:linear-gradient(135deg,#3dff88,#22c968);color:#05060a;border:1.5px solid #7dffb0;border-radius:3px;cursor:pointer;text-transform:uppercase;transition:all .3s ease;box-shadow:0 0 16px rgba(61,255,136,.55),inset 0 0 10px rgba(255,255,255,.15);flex-shrink:0;white-space:nowrap}
+.announce-cta:hover{transform:translateY(-1px) scale(1.04);background:linear-gradient(135deg,#5fffaa,#3dff88);box-shadow:0 0 26px #3dff88,0 0 44px rgba(61,255,136,.5)}
+.announce-close{position:absolute;top:50%;right:.75rem;transform:translateY(-50%);width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:4px;cursor:pointer;font-size:.85rem;transition:all .3s ease;z-index:3}
+.announce-close:hover{background:rgba(255,42,42,.2);color:#ff2a2a;border-color:rgba(255,42,42,.5);transform:translateY(-50%) rotate(90deg) scale(1.1);box-shadow:0 0 16px rgba(255,42,42,.5)}
+body.show-banner{padding-top:var(--banner-h)}
+body.show-banner .navbar{top:var(--banner-h)}
+body.show-banner .hero{min-height:calc(100vh - var(--banner-h))}
+
+/* ===== NEW BADGE ===== */
+.new-badge{font-family:'Orbitron',sans-serif;font-weight:900;font-size:.55rem;letter-spacing:2.5px;padding:.3rem .65rem;background:linear-gradient(135deg,#3dff88,#4d9fff);color:#05060a;border-radius:2px;text-transform:uppercase;box-shadow:0 0 12px rgba(61,255,136,.5);animation:newBadgePulse 1.6s ease-in-out infinite;display:inline-flex;align-items:center;line-height:1}
+@keyframes newBadgePulse{0%,100%{box-shadow:0 0 12px rgba(61,255,136,.5);transform:scale(1)}50%{box-shadow:0 0 22px rgba(61,255,136,1),0 0 36px rgba(61,255,136,.4);transform:scale(1.08)}}
+
+/* ===== NAVBAR ===== */
+.navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:1.1rem 2.5rem;display:flex;align-items:center;justify-content:space-between;transition:all .4s ease,top .5s cubic-bezier(.2,.8,.2,1);background:transparent}
+.navbar.scrolled{padding:.7rem 2.5rem;background:rgba(5,7,12,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(90,140,255,.2);box-shadow:0 4px 30px rgba(77,159,255,.08)}
+.logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.35rem;letter-spacing:6px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:.5rem;user-select:none}
+.logo i{color:#4d9fff;font-style:normal;text-shadow:0 0 20px #4d9fff}
+.nav-links{display:flex;gap:2.2rem;list-style:none}
+.nav-links a{color:#a8b0c2;text-decoration:none;font-weight:600;font-size:.82rem;letter-spacing:2.5px;text-transform:uppercase;position:relative;padding:6px 0;transition:color .3s}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:0;height:1.5px;width:0;background:linear-gradient(90deg,#4d9fff,#a86bff);box-shadow:0 0 10px #4d9fff;transition:width .3s ease}
+.nav-links a:hover,.nav-links a.active{color:#fff}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-cta{background:linear-gradient(135deg,#5865F2,#4050c8);color:#fff;font-weight:700;font-size:.78rem;padding:.65rem 1.4rem;border-radius:6px;text-decoration:none;letter-spacing:2px;text-transform:uppercase;border:1px solid #7a86ff;box-shadow:0 0 20px #5865F288,inset 0 0 12px #5865F233;transition:all .3s ease;display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 0 32px #5865F2,0 0 60px #5865F2aa}
+.hamburger{display:none;background:none;border:none;flex-direction:column;gap:5px;padding:8px;z-index:1100}
+.hamburger span{display:block;width:26px;height:2px;background:#4d9fff;border-radius:2px;box-shadow:0 0 8px #4d9fff;transition:all .3s ease}
+.hamburger.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hamburger.active span:nth-child(2){opacity:0}
+.hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+
+/* ===== LANGUAGE SWITCHER ===== */
+.lang-switcher{display:flex;align-items:center;gap:.35rem;padding:.35rem .45rem;border-radius:8px;background:rgba(10,14,26,.7);border:1px solid rgba(90,140,255,.25);box-shadow:0 0 20px rgba(77,159,255,.15),inset 0 0 12px rgba(77,159,255,.05);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);position:relative;overflow:hidden;animation:langFloat 4s ease-in-out infinite}
+@keyframes langFloat{0%,100%{box-shadow:0 0 20px rgba(77,159,255,.15),inset 0 0 12px rgba(77,159,255,.05)}50%{box-shadow:0 0 30px rgba(77,159,255,.35),inset 0 0 18px rgba(77,159,255,.1)}}
+.lang-switcher::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(77,159,255,.25),transparent);animation:langShine 3.5s ease-in-out infinite;pointer-events:none}
+@keyframes langShine{0%{left:-100%}50%,100%{left:100%}}
+.lang-btn{font-family:'Orbitron',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:2px;padding:.45rem .75rem;border-radius:5px;background:transparent;color:#8892a6;border:1px solid transparent;cursor:pointer;transition:all .35s cubic-bezier(.2,.8,.2,1);position:relative;z-index:2;text-transform:uppercase;display:inline-flex;align-items:center;gap:.3rem}
+.lang-btn .flag{font-size:.85rem;line-height:1;filter:grayscale(.5);transition:filter .35s}
+.lang-btn:hover{color:#fff;background:rgba(77,159,255,.12);border-color:rgba(77,159,255,.4);transform:translateY(-1px);box-shadow:0 0 14px rgba(77,159,255,.4)}
+.lang-btn:hover .flag{filter:grayscale(0)}
+.lang-btn.active{color:#fff;background:linear-gradient(135deg,rgba(77,159,255,.35),rgba(168,107,255,.3));border-color:#4d9fff;box-shadow:0 0 18px rgba(77,159,255,.7),inset 0 0 12px rgba(255,255,255,.15);text-shadow:0 0 10px #4d9fff;animation:langPulse 2s ease-in-out infinite}
+.lang-btn.active .flag{filter:grayscale(0);transform:scale(1.15)}
+@keyframes langPulse{0%,100%{box-shadow:0 0 18px rgba(77,159,255,.7),inset 0 0 12px rgba(255,255,255,.15)}50%{box-shadow:0 0 28px rgba(77,159,255,1),0 0 40px rgba(168,107,255,.5),inset 0 0 16px rgba(255,255,255,.25)}}
+.lang-divider{width:1px;height:18px;background:linear-gradient(180deg,transparent,rgba(90,140,255,.4),transparent);margin:0 .1rem}
+
+/* ===== HERO ===== */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:7rem 2rem 4rem;overflow:hidden;z-index:1;transition:min-height .5s cubic-bezier(.2,.8,.2,1)}
+.hero-scene{position:absolute;inset:0;z-index:-3;background:radial-gradient(ellipse at 20% 30%,rgba(77,159,255,.18) 0%,transparent 55%),radial-gradient(ellipse at 80% 70%,rgba(168,107,255,.15) 0%,transparent 55%),radial-gradient(ellipse at 50% 100%,rgba(61,255,136,.08) 0%,transparent 60%),linear-gradient(180deg,#02040a 0%,#060a18 50%,#040612 100%)}
+.hero-city{position:absolute;bottom:0;left:0;right:0;height:42%;z-index:-2;pointer-events:none;background:linear-gradient(180deg,transparent 0%,rgba(2,4,10,.85) 60%,#02040a 100%)}
+.hero-city::before{content:'';position:absolute;inset:0;background:linear-gradient(to top,#02040a 0%,transparent 40%),repeating-linear-gradient(90deg,transparent 0px,transparent 18px,rgba(10,14,26,.9) 18px,rgba(10,14,26,.9) 42px,transparent 42px,transparent 60px,rgba(8,12,22,.95) 60px,rgba(8,12,22,.95) 95px,transparent 95px,transparent 118px,rgba(12,16,30,.85) 118px,rgba(12,16,30,.85) 145px);-webkit-mask-image:linear-gradient(to top,#000 20%,transparent 90%);mask-image:linear-gradient(to top,#000 20%,transparent 90%);filter:blur(.3px)}
+.hero-city::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 12% 78%,rgba(77,159,255,.6) 0,transparent 1.5%),radial-gradient(circle at 28% 68%,rgba(168,107,255,.55) 0,transparent 1.2%),radial-gradient(circle at 44% 82%,rgba(61,255,136,.5) 0,transparent 1%),radial-gradient(circle at 62% 72%,rgba(77,159,255,.6) 0,transparent 1.3%),radial-gradient(circle at 78% 80%,rgba(168,107,255,.5) 0,transparent 1.1%),radial-gradient(circle at 92% 74%,rgba(77,159,255,.55) 0,transparent 1.2%);filter:blur(1px);animation:cityFlicker 5s ease-in-out infinite alternate}
+@keyframes cityFlicker{0%,100%{opacity:.75}50%{opacity:1}}
+.hero-smoke{position:absolute;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 30% 90%,rgba(120,150,220,.14) 0%,transparent 70%),radial-gradient(ellipse 50% 30% at 75% 85%,rgba(168,107,255,.12) 0%,transparent 70%);animation:smokeDrift 14s ease-in-out infinite alternate}
+@keyframes smokeDrift{0%{transform:translateX(-2%) scale(1);opacity:.7}100%{transform:translateX(2%) scale(1.08);opacity:1}}
+.hero-vignette{position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(2,4,10,.85) 100%)}
+.hud{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.75}
+.hud-corner{position:absolute;width:60px;height:60px;border-color:rgba(77,159,255,.5);border-style:solid;border-width:0;filter:drop-shadow(0 0 6px #4d9fff88)}
+.hud-corner.tl{top:90px;left:30px;border-top-width:1.5px;border-left-width:1.5px}
+.hud-corner.tr{top:90px;right:30px;border-top-width:1.5px;border-right-width:1.5px}
+.hud-corner.bl{bottom:30px;left:30px;border-bottom-width:1.5px;border-left-width:1.5px}
+.hud-corner.br{bottom:30px;right:30px;border-bottom-width:1.5px;border-right-width:1.5px}
+.hud-tag{position:absolute;font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:3px;color:rgba(77,159,255,.7);text-transform:uppercase}
+.hud-tag.tl{top:100px;left:100px}.hud-tag.tr{top:100px;right:100px}.hud-tag.bl{bottom:100px;left:100px}.hud-tag.br{bottom:100px;right:100px}
+.hud-tag.green{color:rgba(61,255,136,.8)}.hud-tag.purple{color:rgba(168,107,255,.8)}
+.hero-content{position:relative;z-index:3;text-align:center;max-width:1000px;padding:0 1rem}
+.hero-eyebrow{display:inline-block;font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:8px;color:#3dff88;border:1px solid rgba(61,255,136,.4);padding:.5rem 1.4rem;border-radius:2px;margin-bottom:2rem;background:rgba(61,255,136,.05);text-transform:uppercase;box-shadow:0 0 20px rgba(61,255,136,.2)}
+.hero-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(3.2rem,13vw,9rem);letter-spacing:12px;line-height:.95;color:#fff;margin-bottom:1.2rem;background:linear-gradient(180deg,#ffffff 30%,#4d9fff 70%,#a86bff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 60px rgba(77,159,255,.5);animation:heroGlow 4s ease-in-out infinite alternate}
+@keyframes heroGlow{0%{filter:drop-shadow(0 0 20px rgba(77,159,255,.4))}100%{filter:drop-shadow(0 0 45px rgba(168,107,255,.6))}}
+.hero-tagline{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.3rem,3.5vw,2.4rem);letter-spacing:14px;color:#fff;margin-bottom:1rem;text-shadow:0 0 20px rgba(77,159,255,.6),0 0 40px rgba(77,159,255,.3)}
+.hero-sub{color:#a8b0c2;font-size:clamp(.95rem,1.6vw,1.15rem);max-width:640px;margin:0 auto 2.6rem;letter-spacing:1px}
+.hero-buttons{display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap}
+.btn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:2.5px;text-transform:uppercase;padding:1rem 2.4rem;border-radius:4px;text-decoration:none;display:inline-flex;align-items:center;gap:.6rem;position:relative;overflow:hidden;transition:all .35s cubic-bezier(.2,.8,.2,1);border:none;cursor:pointer}
+.btn-primary{background:linear-gradient(135deg,#4d9fff,#2a6dd9);color:#fff;box-shadow:0 0 24px rgba(77,159,255,.5),inset 0 0 20px rgba(255,255,255,.15)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 0 40px #4d9fff,0 0 80px rgba(77,159,255,.6)}
+.btn-primary::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transition:left .6s}
+.btn-primary:hover::before{left:100%}
+.btn-outline{background:rgba(88,101,242,.08);color:#c8cfff;border:1.5px solid #5865F2;box-shadow:0 0 20px rgba(88,101,242,.3)}
+.btn-outline:hover{background:rgba(88,101,242,.25);transform:translateY(-3px);box-shadow:0 0 40px #5865F2,0 0 70px rgba(88,101,242,.5);color:#fff}
+.btn .ic{font-size:1.05em;line-height:1}
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:5px;color:#8892a6;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:.6rem;z-index:3;animation:scrollPulse 2.4s ease-in-out infinite}
+.scroll-hint .arrow{width:1px;height:36px;background:linear-gradient(180deg,transparent,#4d9fff);position:relative}
+.scroll-hint .arrow::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%) rotate(45deg);width:6px;height:6px;border-right:1.5px solid #4d9fff;border-bottom:1.5px solid #4d9fff}
+@keyframes scrollPulse{0%,100%{opacity:.5;transform:translateX(-50%) translateY(0)}50%{opacity:1;transform:translateX(-50%) translateY(6px)}}
+
+/* ===== SECTIONS ===== */
+section{position:relative;z-index:2;padding:7rem 2.5rem;max-width:1400px;margin:0 auto}
+.section-head{margin-bottom:4rem;position:relative}
+.section-eyebrow{font-family:'Orbitron',sans-serif;font-size:.68rem;letter-spacing:6px;color:#4d9fff;text-transform:uppercase;display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;text-shadow:0 0 12px rgba(77,159,255,.6)}
+.section-eyebrow::before{content:'';width:32px;height:1.5px;background:#4d9fff;box-shadow:0 0 8px #4d9fff}
+.section-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3.6rem);letter-spacing:3px;color:#fff;line-height:1.05;text-shadow:0 0 40px rgba(77,159,255,.25)}
+.section-title .accent{color:#4d9fff;text-shadow:0 0 24px #4d9fff}
+.section-desc{color:#8892a6;font-size:1.05rem;max-width:620px;margin-top:1rem;letter-spacing:.5px}
+
+/* ===== GAME BLOCKS ===== */
+.game-block{display:grid;grid-template-columns:1.15fr 1fr;gap:0;background:linear-gradient(135deg,rgba(14,18,28,.7),rgba(8,10,18,.9));border:1px solid rgba(90,140,255,.15);border-radius:8px;overflow:hidden;margin-bottom:3rem;position:relative;transition:all .5s cubic-bezier(.2,.8,.2,1)}
+.game-block::before{content:'';position:absolute;inset:0;border-radius:8px;padding:1px;background:linear-gradient(135deg,rgba(77,159,255,.4),transparent 40%,transparent 60%,rgba(168,107,255,.4));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .5s;pointer-events:none}
+.game-block:hover::before{opacity:1}
+.game-block:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(77,159,255,.15)}
+.game-block.reverse{grid-template-columns:1fr 1.15fr}
+.game-block.reverse .game-visual{order:2}
+.game-block.reverse .game-body{order:1}
+.game-visual{position:relative;overflow:hidden;min-height:460px;background:radial-gradient(circle at 30% 30%,rgba(77,159,255,.25),transparent 60%),radial-gradient(circle at 70% 70%,rgba(168,107,255,.2),transparent 60%),linear-gradient(135deg,#080b16,#0f1422);display:flex;align-items:center;justify-content:center}
+.game-visual::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0,transparent 3px,rgba(77,159,255,.03) 3px,rgba(77,159,255,.03) 4px),radial-gradient(ellipse at 50% 100%,rgba(2,4,10,.9),transparent 70%);pointer-events:none}
+.game-visual .art{font-family:'Orbitron',sans-serif;font-size:5rem;color:#4d9fff;opacity:.35;text-shadow:0 0 40px #4d9fff,0 0 80px rgba(77,159,255,.5);transition:transform .8s cubic-bezier(.2,.8,.2,1),opacity .5s;z-index:2;letter-spacing:4px;text-align:center;line-height:1.05}
+.game-block:hover .game-visual .art{transform:scale(1.15);opacity:.55}
+.game-visual .visual-label{position:absolute;top:1.5rem;left:1.5rem;font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:4px;color:rgba(77,159,255,.7);border:1px solid rgba(77,159,255,.3);padding:.35rem .8rem;border-radius:2px;background:rgba(5,7,12,.6);backdrop-filter:blur(6px);z-index:3}
+.game-visual .visual-label.green{color:rgba(61,255,136,.8);border-color:rgba(61,255,136,.35)}
+.game-visual .visual-label.purple{color:rgba(168,107,255,.8);border-color:rgba(168,107,255,.35)}
+.game-body{padding:3.2rem 3rem;display:flex;flex-direction:column;justify-content:center}
+.game-series{display:inline-block;font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:5px;color:#3dff88;border:1px solid rgba(61,255,136,.4);padding:.35rem 1rem;border-radius:2px;margin-bottom:1rem;align-self:flex-start;text-transform:uppercase;background:rgba(61,255,136,.05);box-shadow:0 0 16px rgba(61,255,136,.15)}
+.game-series.orange{color:#ffb84d;border-color:rgba(255,184,77,.4);background:rgba(255,184,77,.05);box-shadow:0 0 16px rgba(255,184,77,.15)}
+.game-series.purple{color:#a86bff;border-color:rgba(168,107,255,.4);background:rgba(168,107,255,.05);box-shadow:0 0 16px rgba(168,107,255,.15)}
+.game-name{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.6rem,3.4vw,2.6rem);letter-spacing:3px;color:#fff;line-height:1.05;margin-bottom:1.2rem;text-shadow:0 0 30px rgba(77,159,255,.25)}
+.game-name .accent{color:#4d9fff}
+.game-story{color:#a8b0c2;font-size:1.05rem;line-height:1.75;margin-bottom:1.6rem;letter-spacing:.3px}
+.game-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem}
+.tag{font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:3px;padding:.4rem .9rem;border-radius:2px;text-transform:uppercase;border:1px solid rgba(90,140,255,.3);color:#a8b0c2;background:rgba(90,140,255,.05);transition:all .3s}
+.tag:hover{border-color:#4d9fff;color:#4d9fff;box-shadow:0 0 12px rgba(77,159,255,.3)}
+.game-actions{display:flex;gap:.8rem;flex-wrap:wrap}
+
+/* ===== STORE BUTTONS ===== */
+.btn-store{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;padding:.75rem 1.5rem;border-radius:4px;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;transition:all .35s cubic-bezier(.2,.8,.2,1);border:1.5px solid;position:relative;overflow:hidden}
+.btn-store .ic{font-size:1.1em;line-height:1}
+.btn-gamejolt{background:rgba(77,159,255,.08);color:#7db8ff;border-color:rgba(77,159,255,.5);box-shadow:0 0 16px rgba(77,159,255,.15)}
+.btn-gamejolt:hover{background:rgba(77,159,255,.2);color:#fff;border-color:#4d9fff;box-shadow:0 0 30px #4d9fff,0 0 60px rgba(77,159,255,.5);transform:translateY(-2px)}
+.btn-itch{background:rgba(250,92,138,.08);color:#ff8bb0;border-color:rgba(250,92,138,.5);box-shadow:0 0 16px rgba(250,92,138,.15)}
+.btn-itch:hover{background:rgba(250,92,138,.2);color:#fff;border-color:#fa5c8a;box-shadow:0 0 30px #fa5c8a,0 0 60px rgba(250,92,138,.5);transform:translateY(-2px)}
+.btn-roblox{background:linear-gradient(135deg,rgba(61,255,136,.18),rgba(77,159,255,.12));color:#c8ffd8;border-color:rgba(61,255,136,.6);box-shadow:0 0 20px rgba(61,255,136,.25),inset 0 0 10px rgba(61,255,136,.05)}
+.btn-roblox:hover{background:linear-gradient(135deg,rgba(61,255,136,.35),rgba(77,159,255,.25));color:#fff;border-color:#3dff88;box-shadow:0 0 34px #3dff88,0 0 60px rgba(61,255,136,.5);transform:translateY(-2px)}
+.btn-roblox::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transition:left .6s}
+.btn-roblox:hover::before{left:100%}
+.btn-disabled{background:rgba(120,130,150,.06);color:#6d7689;border-color:rgba(120,130,150,.3);cursor:not-allowed;opacity:.75}
+.btn-disabled:hover{transform:none;box-shadow:none;background:rgba(120,130,150,.06)}
+
+/* ===== OTHER PROJECTS ===== */
+.other-projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-top:3rem}
+.mini-project{background:linear-gradient(160deg,rgba(14,18,28,.85),rgba(8,10,18,.95));border:1px solid rgba(90,140,255,.15);border-radius:6px;padding:1.5rem;transition:all .4s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
+.mini-project::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4d9fff,transparent);transform:scaleX(0);transition:transform .5s;transform-origin:left}
+.mini-project:hover::before{transform:scaleX(1)}
+.mini-project:hover{transform:translateY(-5px);border-color:rgba(77,159,255,.4);box-shadow:0 15px 40px rgba(77,159,255,.12)}
+.mini-img{width:100%;height:110px;border-radius:4px;margin-bottom:1rem;background:radial-gradient(circle at 30% 40%,rgba(77,159,255,.2),transparent 65%),radial-gradient(circle at 70% 60%,rgba(168,107,255,.15),transparent 65%),linear-gradient(135deg,#0a0d16,#121728);display:flex;align-items:center;justify-content:center;font-size:2rem;color:rgba(77,159,255,.4);border:1px solid rgba(90,140,255,.1);transition:transform .5s}
+.mini-project:hover .mini-img{transform:scale(1.03)}
+.mini-name{font-family:'Orbitron',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:2px;color:#fff;margin-bottom:.3rem}
+.mini-genre{font-size:.75rem;letter-spacing:2px;color:#8892a6;text-transform:uppercase;margin-bottom:.9rem}
+.mini-status{display:inline-block;font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:2.5px;padding:.25rem .7rem;border-radius:2px;text-transform:uppercase}
+.status-dev{color:#ffb84d;border:1px solid rgba(255,184,77,.4);background:rgba(255,184,77,.06)}
+.status-soon{color:#a86bff;border:1px solid rgba(168,107,255,.4);background:rgba(168,107,255,.06)}
+.status-play{color:#3dff88;border:1px solid rgba(61,255,136,.4);background:rgba(61,255,136,.06)}
+
+/* ===== UNIVERSE ===== */
+.universe{position:relative;padding:8rem 2.5rem;background:radial-gradient(ellipse at 50% 0%,rgba(77,159,255,.08),transparent 60%),radial-gradient(ellipse at 50% 100%,rgba(168,107,255,.08),transparent 60%);border-top:1px solid rgba(90,140,255,.1);border-bottom:1px solid rgba(90,140,255,.1)}
+.universe-inner{max-width:1200px;margin:0 auto;text-align:center;position:relative}
+.universe-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.8rem,4.5vw,3rem);letter-spacing:5px;color:#fff;margin-bottom:1rem;text-shadow:0 0 40px rgba(77,159,255,.4)}
+.universe-sub{color:#a8b0c2;max-width:640px;margin:0 auto 4rem;font-size:1.05rem}
+.universe-chain{display:flex;flex-direction:column;align-items:center;gap:0;max-width:560px;margin:0 auto}
+.uni-node{font-family:'Orbitron',sans-serif;font-weight:700;letter-spacing:4px;font-size:clamp(.85rem,2vw,1.15rem);color:#fff;padding:1.2rem 2.2rem;border:1px solid rgba(77,159,255,.4);border-radius:4px;background:linear-gradient(135deg,rgba(77,159,255,.06),rgba(5,7,12,.6));backdrop-filter:blur(8px);width:100%;text-align:center;position:relative;transition:all .4s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 20px rgba(77,159,255,.08)}
+.uni-node:hover{border-color:#4d9fff;box-shadow:0 0 30px rgba(77,159,255,.35);transform:scale(1.03);color:#4d9fff}
+.uni-node.purple{border-color:rgba(168,107,255,.4)}
+.uni-node.purple:hover{border-color:#a86bff;box-shadow:0 0 30px rgba(168,107,255,.35);color:#a86bff}
+.uni-node.green{border-color:rgba(61,255,136,.4)}
+.uni-node.green:hover{border-color:#3dff88;box-shadow:0 0 30px rgba(61,255,136,.35);color:#3dff88}
+.uni-node.rush{border-color:rgba(61,255,136,.55);background:linear-gradient(135deg,rgba(61,255,136,.08),rgba(5,7,12,.6));box-shadow:0 0 24px rgba(61,255,136,.2)}
+.uni-node.rush:hover{border-color:#3dff88;box-shadow:0 0 40px rgba(61,255,136,.55);color:#3dff88}
+.uni-arrow{font-size:1.4rem;color:#4d9fff;opacity:.6;padding:.5rem 0;animation:uniArrow 2.4s ease-in-out infinite;line-height:1;text-shadow:0 0 12px currentColor}
+@keyframes uniArrow{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(6px);opacity:1}}
+.universe-motto{margin-top:4rem;font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1rem,2.6vw,1.6rem);letter-spacing:8px;color:#4d9fff;text-shadow:0 0 30px #4d9fff,0 0 60px rgba(77,159,255,.4);text-transform:uppercase}
+
+/* ===== UPDATES ===== */
+.update-featured{display:grid;grid-template-columns:1.2fr 1fr;gap:0;background:linear-gradient(135deg,rgba(168,107,255,.08),rgba(8,10,18,.95));border:1px solid rgba(168,107,255,.25);border-radius:8px;overflow:hidden;margin-bottom:2rem;position:relative;transition:all .5s}
+.update-featured:hover{border-color:rgba(168,107,255,.5);box-shadow:0 20px 60px rgba(168,107,255,.15)}
+.update-visual{position:relative;min-height:400px;background:radial-gradient(circle at 40% 40%,rgba(255,140,60,.25),transparent 60%),radial-gradient(circle at 70% 60%,rgba(168,107,255,.3),transparent 60%),linear-gradient(135deg,#0a0712,#150a1f);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.update-visual .pumpkin{font-size:6rem;filter:drop-shadow(0 0 30px #ff8c3c);animation:pumpkinFloat 4s ease-in-out infinite}
+@keyframes pumpkinFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+.update-visual::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(5,3,12,.9),transparent 70%);pointer-events:none}
+.update-body{padding:3rem;display:flex;flex-direction:column;justify-content:center}
+.update-badge{display:inline-block;font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:5px;color:#ff8c3c;border:1px solid rgba(255,140,60,.5);padding:.4rem 1rem;border-radius:2px;margin-bottom:1.2rem;align-self:flex-start;background:rgba(255,140,60,.08);box-shadow:0 0 20px rgba(255,140,60,.25);text-transform:uppercase}
+.update-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.5rem,3vw,2.2rem);letter-spacing:3px;color:#fff;line-height:1.1;margin-bottom:1rem}
+.update-title .hl{color:#ff8c3c}
+.update-desc{color:#a8b0c2;font-size:1rem;margin-bottom:1.5rem;line-height:1.7}
+.update-features{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:2rem}
+.up-feat{font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:2.5px;color:#c8cfff;padding:.6rem .9rem;border:1px solid rgba(168,107,255,.25);border-radius:3px;background:rgba(168,107,255,.05);text-transform:uppercase;transition:all .3s}
+.up-feat:hover{border-color:#a86bff;color:#a86bff;box-shadow:0 0 14px rgba(168,107,255,.3)}
+
+/* CITY OF DECAY VARIANT */
+.update-featured.city{background:linear-gradient(135deg,rgba(77,159,255,.08),rgba(8,10,18,.95));border-color:rgba(77,159,255,.25)}
+.update-featured.city:hover{border-color:rgba(77,159,255,.5);box-shadow:0 20px 60px rgba(77,159,255,.15)}
+.update-featured.city .update-visual{background:radial-gradient(circle at 40% 40%,rgba(61,255,136,.2),transparent 60%),radial-gradient(circle at 70% 60%,rgba(77,159,255,.3),transparent 60%),linear-gradient(135deg,#060d10,#0a1520)}
+.update-featured.city .update-visual .pumpkin{filter:drop-shadow(0 0 30px #4d9fff)}
+.update-featured.city .update-badge{color:#4d9fff;border-color:rgba(77,159,255,.5);background:rgba(77,159,255,.08);box-shadow:0 0 20px rgba(77,159,255,.25)}
+.update-featured.city .update-title .hl{color:#4d9fff}
+.update-featured.city .up-feat{border-color:rgba(77,159,255,.25);background:rgba(77,159,255,.05)}
+.update-featured.city .up-feat:hover{border-color:#4d9fff;color:#4d9fff;box-shadow:0 0 14px rgba(77,159,255,.3)}
+
+/* SURVIVAL (ROBLOX) VARIANT */
+.update-featured.survival{background:linear-gradient(135deg,rgba(61,255,136,.1),rgba(8,10,18,.95));border-color:rgba(61,255,136,.35);box-shadow:0 0 40px rgba(61,255,136,.08)}
+.update-featured.survival:hover{border-color:rgba(61,255,136,.7);box-shadow:0 20px 60px rgba(61,255,136,.22),0 0 60px rgba(61,255,136,.15)}
+.update-featured.survival .update-visual{background:radial-gradient(circle at 40% 40%,rgba(61,255,136,.3),transparent 60%),radial-gradient(circle at 70% 60%,rgba(77,159,255,.25),transparent 60%),linear-gradient(135deg,#04120a,#062016)}
+.update-featured.survival .update-visual .pumpkin{filter:drop-shadow(0 0 30px #3dff88) drop-shadow(0 0 60px rgba(61,255,136,.5))}
+.update-featured.survival .update-badge{color:#3dff88;border-color:rgba(61,255,136,.55);background:rgba(61,255,136,.08);box-shadow:0 0 20px rgba(61,255,136,.3)}
+.update-featured.survival .update-title .hl{color:#3dff88;text-shadow:0 0 24px rgba(61,255,136,.5)}
+.update-featured.survival .up-feat{border-color:rgba(61,255,136,.3);background:rgba(61,255,136,.06);color:#c8ffd8}
+.update-featured.survival .up-feat:hover{border-color:#3dff88;color:#3dff88;box-shadow:0 0 14px rgba(61,255,136,.4)}
+
+.update-badge-wrap{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:1.2rem;align-self:flex-start}
+.update-badge-wrap .update-badge{margin-bottom:0}
+
+.updates-secondary{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.update-card{background:linear-gradient(160deg,rgba(14,18,28,.85),rgba(8,10,18,.95));border:1px solid rgba(90,140,255,.15);border-radius:6px;padding:1.8rem;transition:all .4s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
+.update-card:hover{transform:translateY(-4px);border-color:rgba(77,159,255,.4);box-shadow:0 15px 40px rgba(77,159,255,.12)}
+.update-card .date{font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:3px;color:#4d9fff;margin-bottom:.6rem;text-transform:uppercase}
+.update-card .cat{display:inline-block;font-size:.6rem;letter-spacing:2px;color:#8892a6;border:1px solid rgba(90,140,255,.2);padding:.2rem .6rem;border-radius:2px;margin-bottom:.8rem;text-transform:uppercase}
+.update-card h4{font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:1.5px;color:#fff;margin-bottom:.7rem;line-height:1.3}
+.update-card p{color:#8892a6;font-size:.9rem;line-height:1.6;margin-bottom:1.2rem}
+
+/* ===== CHAPTERS SYSTEM ===== */
+.chapters-btn-wrap{display:flex;justify-content:center;margin-bottom:2rem}
+.chapters-btn{display:inline-flex;align-items:center;gap:.7rem;font-family:'Orbitron',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:5px;text-transform:uppercase;padding:1rem 2rem;background:linear-gradient(135deg,rgba(77,159,255,.18),rgba(168,107,255,.12));color:#fff;border:1.5px solid rgba(77,159,255,.5);border-radius:4px;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 0 28px rgba(77,159,255,.3),inset 0 0 14px rgba(77,159,255,.1);transition:all .35s cubic-bezier(.2,.8,.2,1);animation:chaptersBtnPulse 3s ease-in-out infinite}
+@keyframes chaptersBtnPulse{0%,100%{box-shadow:0 0 28px rgba(77,159,255,.3),inset 0 0 14px rgba(77,159,255,.1)}50%{box-shadow:0 0 40px rgba(77,159,255,.6),0 0 60px rgba(168,107,255,.3),inset 0 0 20px rgba(77,159,255,.15)}}
+.chapters-btn:hover{border-color:#4d9fff;transform:translateY(-3px) scale(1.03);box-shadow:0 0 50px #4d9fff,0 0 90px rgba(77,159,255,.6);animation:none}
+.chapters-btn .ic{font-size:1.1em}
+.chapters-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transition:left .6s}
+.chapters-btn:hover::before{left:100%}
+.chapters-new{font-family:'Orbitron',sans-serif;font-weight:900;font-size:.52rem;letter-spacing:2px;padding:.22rem .5rem;background:linear-gradient(135deg,#3dff88,#4d9fff);color:#05060a;border-radius:2px;text-transform:uppercase;box-shadow:0 0 12px rgba(61,255,136,.6);animation:newBadgePulse 1.6s ease-in-out infinite;margin-left:.4rem;line-height:1;display:inline-block}
+
+.chapters-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;background:radial-gradient(ellipse at 50% 50%,rgba(10,15,30,.96),rgba(2,4,10,.98));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;visibility:hidden;transition:opacity .4s ease,visibility .4s ease}
+.chapters-modal.open{opacity:1;visibility:visible}
+.chapters-modal::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(77,159,255,.1),transparent 40%),radial-gradient(circle at 80% 80%,rgba(168,107,255,.1),transparent 40%);pointer-events:none}
+.chapters-modal-content{position:relative;width:100%;max-width:900px;max-height:92vh;overflow-y:auto;overflow-x:hidden;background:radial-gradient(ellipse at 20% 0%,rgba(77,159,255,.12),transparent 60%),linear-gradient(135deg,#080b16,#0a0d15);border:1px solid rgba(77,159,255,.35);border-radius:8px;padding:3rem 2.5rem 2.5rem;box-shadow:0 0 80px rgba(77,159,255,.25),0 30px 60px rgba(0,0,0,.7),inset 0 0 80px rgba(77,159,255,.04);transform:scale(.92) translateY(30px);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.chapters-modal.open .chapters-modal-content{transform:scale(1) translateY(0)}
+.chapters-close{position:sticky;top:0;float:right;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(77,159,255,.1);color:#4d9fff;border:1.5px solid rgba(77,159,255,.5);border-radius:6px;cursor:pointer;font-size:1.15rem;font-family:'Orbitron',sans-serif;font-weight:700;transition:all .35s cubic-bezier(.2,.8,.2,1);z-index:20;margin-left:.5rem}
+.chapters-close:hover{background:rgba(255,42,42,.18);color:#ff2a2a;border-color:#ff2a2a;transform:rotate(90deg) scale(1.1);box-shadow:0 0 24px rgba(255,42,42,.6)}
+.chapters-view{display:none}
+.chapters-view.active{display:block;animation:chaptersViewIn .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes chaptersViewIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.chapters-header{text-align:center;margin-bottom:2.5rem;clear:both}
+.chapters-header .eyebrow{font-family:'Orbitron',sans-serif;font-size:.68rem;letter-spacing:6px;color:#4d9fff;text-transform:uppercase;text-shadow:0 0 12px rgba(77,159,255,.6);display:inline-block;margin-bottom:.8rem}
+.chapters-header h2{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.8rem,4vw,2.8rem);letter-spacing:6px;color:#fff;text-shadow:0 0 40px rgba(77,159,255,.4);line-height:1.1}
+.chapters-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:1rem}
+.chapter-card{display:flex;flex-direction:column;gap:.6rem;background:linear-gradient(160deg,rgba(77,159,255,.08),rgba(168,107,255,.06));border:1.5px solid rgba(77,159,255,.35);border-radius:6px;padding:2rem 1.8rem;text-align:left;cursor:pointer;color:inherit;font-family:inherit;transition:all .4s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden;opacity:0;transform:translateY(20px);animation:chapterCardIn .6s cubic-bezier(.2,.8,.2,1) forwards}
+.chapters-view.active .chapter-card:nth-child(1){animation-delay:.15s}
+@keyframes chapterCardIn{to{opacity:1;transform:translateY(0)}}
+.chapter-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(77,159,255,.2),transparent 70%);opacity:0;transition:opacity .4s;pointer-events:none}
+.chapter-card:hover::before{opacity:1}
+.chapter-card:hover{transform:translateY(-6px);border-color:#4d9fff;box-shadow:0 20px 50px rgba(77,159,255,.25)}
+.chapter-card .num{font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:4px;color:#4d9fff;text-transform:uppercase}
+.chapter-card h3{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.6rem;letter-spacing:3px;color:#fff;text-shadow:0 0 20px rgba(77,159,255,.4);line-height:1.1}
+.chapter-card p{color:#a8b0c2;font-size:.95rem;line-height:1.6;flex:1}
+.chapter-card .status{font-family:'Orbitron',sans-serif;font-size:.58rem;letter-spacing:3px;color:#3dff88;border:1px solid rgba(61,255,136,.4);padding:.3rem .7rem;border-radius:2px;background:rgba(61,255,136,.05);text-transform:uppercase;align-self:flex-start;box-shadow:0 0 12px rgba(61,255,136,.2)}
+.chapters-detail .detail-back{display:inline-flex;align-items:center;gap:.4rem;font-family:'Orbitron',sans-serif;font-size:.68rem;letter-spacing:3px;color:#8892a6;background:none;border:none;cursor:pointer;padding:.5rem 0;margin-bottom:1.5rem;text-transform:uppercase;transition:all .3s}
+.detail-back:hover{color:#4d9fff;text-shadow:0 0 10px #4d9fff}
+.detail-back .arrow{font-size:1rem}
+.detail-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(1.4rem,3.5vw,2.2rem);letter-spacing:3px;color:#fff;line-height:1.15;margin-bottom:.5rem;text-shadow:0 0 30px rgba(77,159,255,.4)}
+.detail-title .accent{color:#4d9fff;text-shadow:0 0 24px #4d9fff}
+.detail-subtitle{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.5vw,1.6rem);letter-spacing:4px;color:#a8b0c2;margin-bottom:2rem}
+.detail-body p{color:#c8cfff;font-size:1.02rem;line-height:1.85;margin-bottom:1.2rem;letter-spacing:.3px;opacity:0;transform:translateY(15px);animation:detailParaIn .7s cubic-bezier(.2,.8,.2,1) forwards}
+.chapters-detail.active .detail-body p:nth-child(1){animation-delay:.15s}
+.chapters-detail.active .detail-body p:nth-child(2){animation-delay:.3s}
+.chapters-detail.active .detail-body p:nth-child(3){animation-delay:.45s}
+.chapters-detail.active .detail-body p:nth-child(4){animation-delay:.6s}
+.chapters-detail.active .detail-body p:nth-child(5){animation-delay:.75s}
+.chapters-detail.active .detail-body p:nth-child(6){animation-delay:.9s}
+.chapters-detail.active .detail-body p:nth-child(7){animation-delay:1.05s}
+@keyframes detailParaIn{to{opacity:1;transform:translateY(0)}}
+.detail-body p.lead{font-size:1.15rem;color:#fff;font-weight:600;font-family:'Rajdhani',sans-serif}
+.detail-body p.question{font-family:'Orbitron',sans-serif;font-weight:700;color:#4d9fff;font-size:1.05rem;letter-spacing:1px;text-shadow:0 0 20px rgba(77,159,255,.5);padding:1rem 1.2rem;border-left:3px solid #4d9fff;background:rgba(77,159,255,.06);border-radius:0 4px 4px 0;margin:1.5rem 0;opacity:0;transform:translateY(15px);animation:detailParaIn .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:.9s}
+.detail-body p.final{font-family:'Orbitron',sans-serif;font-weight:900;color:#ff8c3c;letter-spacing:2px;font-size:1.1rem;text-shadow:0 0 20px rgba(255,140,60,.4);text-align:center;margin:2rem 0 1rem;opacity:0;transform:translateY(15px);animation:detailParaIn .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:1.2s}
+.detail-credit{text-align:center;color:#4d9fff;font-weight:700;font-size:.9rem;letter-spacing:1px;margin-top:2rem;padding-top:2rem;border-top:1px solid rgba(77,159,255,.15);opacity:0;animation:detailParaIn .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:1.35s;text-shadow:0 0 16px rgba(77,159,255,.4)}
+
+/* ===== SOCIAL ===== */
+.social-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem}
+.social-block{background:linear-gradient(160deg,rgba(14,18,28,.85),rgba(8,10,18,.95));border:1px solid rgba(90,140,255,.15);border-radius:8px;padding:2rem 1.6rem;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.2,.8,.2,1)}
+.social-block::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,#4d9fff);transform:scaleX(0);transition:transform .5s;transform-origin:left;box-shadow:0 0 20px var(--accent,#4d9fff)}
+.social-block:hover::before{transform:scaleX(1)}
+.social-block:hover{transform:translateY(-6px);border-color:var(--accent,#4d9fff);box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 30px var(--accent-soft,rgba(77,159,255,.25))}
+.social-block.yt{--accent:#ff2a2a;--accent-soft:rgba(255,42,42,.25)}
+.social-block.dc{--accent:#5865F2;--accent-soft:rgba(88,101,242,.25)}
+.social-block.tt{--accent:#3dff88;--accent-soft:rgba(61,255,136,.25)}
+.social-block.tw{--accent:#a86bff;--accent-soft:rgba(168,107,255,.25)}
+.soc-icon{font-size:2.4rem;margin-bottom:1.2rem;filter:drop-shadow(0 0 12px var(--accent,#4d9fff));transition:transform .4s}
+.social-block:hover .soc-icon{transform:scale(1.15) translateY(-3px)}
+.soc-name{font-family:'Orbitron',sans-serif;font-weight:700;font-size:1rem;letter-spacing:3px;color:#fff;margin-bottom:.6rem}
+.soc-desc{color:#8892a6;font-size:.85rem;margin-bottom:1.5rem;line-height:1.6;flex:1}
+.btn-soc{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.75rem;letter-spacing:2.5px;text-transform:uppercase;padding:.7rem 1.4rem;border-radius:3px;text-decoration:none;border:1.5px solid var(--accent,#4d9fff);color:var(--accent,#4d9fff);background:transparent;transition:all .3s;display:inline-flex;align-items:center;gap:.4rem}
+.btn-soc:hover{background:var(--accent,#4d9fff);color:#05060a;box-shadow:0 0 24px var(--accent,#4d9fff);transform:translateY(-2px)}
+
+/* ===== YOUTUBE ===== */
+.yt-section{background:radial-gradient(ellipse at 20% 30%,rgba(255,42,42,.08),transparent 60%),radial-gradient(ellipse at 80% 70%,rgba(255,42,42,.05),transparent 60%);border-top:1px solid rgba(255,42,42,.1);border-bottom:1px solid rgba(255,42,42,.1);padding:8rem 2.5rem}
+.yt-inner{max-width:1200px;margin:0 auto;text-align:center}
+.yt-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+.yt-card{background:linear-gradient(160deg,rgba(20,14,16,.9),rgba(10,8,10,.95));border:1px solid rgba(255,42,42,.15);border-radius:6px;overflow:hidden;transition:all .4s cubic-bezier(.2,.8,.2,1);text-decoration:none;display:block}
+.yt-card:hover{transform:translateY(-6px);border-color:rgba(255,42,42,.5);box-shadow:0 20px 50px rgba(255,42,42,.15)}
+.yt-thumb{height:160px;display:flex;align-items:center;justify-content:center;position:relative;background:radial-gradient(circle at 50% 50%,rgba(255,42,42,.2),transparent 60%),linear-gradient(135deg,#0a0608,#140a0e);border-bottom:1px solid rgba(255,42,42,.1)}
+.yt-thumb .play{width:52px;height:52px;border-radius:50%;background:rgba(255,42,42,.9);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.4rem;box-shadow:0 0 30px rgba(255,42,42,.7);transition:all .3s}
+.yt-card:hover .play{transform:scale(1.15);box-shadow:0 0 50px rgba(255,42,42,1)}
+.yt-meta{padding:1.3rem 1.5rem}
+.yt-label{font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:3px;color:#ff2a2a;margin-bottom:.4rem;text-transform:uppercase}
+.yt-name{color:#fff;font-weight:700;font-size:1rem;letter-spacing:1px}
+.yt-hint{color:#6d7689;font-size:.8rem;margin-top:.3rem}
+
+/* ===== DISCORD ===== */
+.discord-section{position:relative;padding:9rem 2.5rem;text-align:center;overflow:hidden;background:radial-gradient(ellipse at 50% 50%,rgba(88,101,242,.15),transparent 65%),linear-gradient(180deg,#05060a,#080a16)}
+.discord-section::before,.discord-section::after{content:'';position:absolute;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(88,101,242,.25),transparent 70%);filter:blur(40px);animation:dcFloat 12s ease-in-out infinite alternate}
+.discord-section::before{width:300px;height:300px;top:10%;left:5%}
+.discord-section::after{width:400px;height:400px;bottom:5%;right:5%;animation-delay:2s;background:radial-gradient(circle,rgba(168,107,255,.2),transparent 70%)}
+@keyframes dcFloat{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,-30px) scale(1.1)}}
+.discord-inner{position:relative;z-index:2;max-width:800px;margin:0 auto}
+.discord-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(2rem,5.5vw,3.6rem);letter-spacing:5px;color:#fff;margin-bottom:1rem;text-shadow:0 0 40px #5865F2,0 0 80px rgba(88,101,242,.5)}
+.discord-sub{color:#a8b0c2;font-size:1.15rem;margin-bottom:3rem;max-width:600px;margin-left:auto;margin-right:auto}
+.btn-discord-xl{font-family:'Orbitron',sans-serif;font-weight:700;font-size:1rem;letter-spacing:4px;text-transform:uppercase;padding:1.4rem 3.5rem;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:.8rem;background:linear-gradient(135deg,#5865F2,#4050c8);color:#fff;border:2px solid #7a86ff;box-shadow:0 0 30px #5865F2aa,0 0 60px #5865F255,inset 0 0 30px rgba(255,255,255,.1);transition:all .4s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
+.btn-discord-xl:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 0 50px #5865F2,0 0 100px #5865F2aa,inset 0 0 40px rgba(255,255,255,.2)}
+.btn-discord-xl::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);transition:left .7s}
+.btn-discord-xl:hover::before{left:100%}
+
+/* ===== ABOUT ===== */
+.about-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:4rem;align-items:center}
+.about-text-block p{color:#a8b0c2;font-size:1.1rem;line-height:1.9;margin-bottom:1.5rem}
+.about-cats{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:2rem}
+.about-cat{padding:1.4rem;border:1px solid rgba(90,140,255,.15);border-radius:6px;background:linear-gradient(160deg,rgba(14,18,28,.7),rgba(8,10,18,.9));transition:all .4s}
+.about-cat:hover{border-color:rgba(77,159,255,.4);transform:translateY(-4px);box-shadow:0 12px 30px rgba(77,159,255,.1)}
+.about-cat .icon{font-size:1.6rem;margin-bottom:.6rem;display:block}
+.about-cat .lbl{font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:2.5px;color:#4d9fff;margin-bottom:.3rem}
+.about-cat .sub{color:#8892a6;font-size:.85rem}
+.about-visual{position:relative;aspect-ratio:1;max-width:420px;justify-self:center;background:radial-gradient(circle at 50% 50%,rgba(77,159,255,.15),transparent 60%),linear-gradient(135deg,#0a0d16,#10141f);border:1px solid rgba(90,140,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(77,159,255,.1),inset 0 0 60px rgba(77,159,255,.05)}
+.about-visual::before{content:'';position:absolute;inset:-20px;border-radius:50%;border:1px dashed rgba(77,159,255,.2);animation:spin 30s linear infinite}
+.about-visual::after{content:'';position:absolute;inset:-40px;border-radius:50%;border:1px dashed rgba(168,107,255,.15);animation:spin 40s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.about-visual .glyph{font-size:5rem;filter:drop-shadow(0 0 30px #4d9fff)}
+
+/* ===== CONTACT ===== */
+.contact-buttons{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:2.5rem}
+.btn-contact{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:2.5px;text-transform:uppercase;padding:.9rem 1.8rem;border-radius:4px;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;transition:all .35s;border:1.5px solid}
+.btn-contact.dc{color:#7a86ff;border-color:rgba(88,101,242,.5);background:rgba(88,101,242,.06)}
+.btn-contact.dc:hover{background:rgba(88,101,242,.25);color:#fff;box-shadow:0 0 30px rgba(88,101,242,.6);transform:translateY(-3px)}
+.btn-contact.yt{color:#ff6b6b;border-color:rgba(255,42,42,.5);background:rgba(255,42,42,.06)}
+.btn-contact.yt:hover{background:rgba(255,42,42,.25);color:#fff;box-shadow:0 0 30px rgba(255,42,42,.6);transform:translateY(-3px)}
+.btn-contact.tw{color:#c39bff;border-color:rgba(168,107,255,.5);background:rgba(168,107,255,.06)}
+.btn-contact.tw:hover{background:rgba(168,107,255,.25);color:#fff;box-shadow:0 0 30px rgba(168,107,255,.6);transform:translateY(-3px)}
+
+/* ===== FOOTER ===== */
+footer{position:relative;z-index:2;padding:4rem 2.5rem 2rem;background:linear-gradient(180deg,#030409,#05060a);border-top:1px solid rgba(90,140,255,.15)}
+.footer-inner{max-width:1400px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3rem}
+.footer-brand .logo{font-size:1.6rem;margin-bottom:1rem}
+.footer-brand p{color:#6d7689;font-size:.9rem;max-width:280px;line-height:1.7}
+.footer-col h5{font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:3px;color:#4d9fff;margin-bottom:1.2rem;text-transform:uppercase}
+.footer-col ul{list-style:none}
+.footer-col ul li{margin-bottom:.7rem}
+.footer-col ul a{color:#8892a6;text-decoration:none;font-size:.9rem;transition:all .3s;letter-spacing:.5px}
+.footer-col ul a:hover{color:#4d9fff;text-shadow:0 0 12px rgba(77,159,255,.6)}
+.footer-bottom{padding-top:2rem;border-top:1px solid rgba(90,140,255,.1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.footer-bottom p{color:#4a5468;font-size:.82rem;letter-spacing:.5px}
+.footer-status{display:flex;gap:1.5rem;align-items:center;font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:2px;color:#6d7689;text-transform:uppercase}
+.footer-status .dot{width:6px;height:6px;border-radius:50%;background:#3dff88;box-shadow:0 0 10px #3dff88;display:inline-block;animation:pulseDot 2s ease-in-out infinite}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ===== REVEAL ===== */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){.social-grid{grid-template-columns:repeat(2,1fr)}.footer-top{grid-template-columns:1fr 1fr;gap:2rem}}
+@media(max-width:900px){
+  :root{--banner-h:50px}
+  .announce-banner{padding:0 2.5rem 0 .75rem}
+  .announce-inner{gap:.5rem}
+  .announce-text{font-size:.62rem;letter-spacing:1.5px}
+  .announce-cta{font-size:.55rem;padding:.35rem .7rem;letter-spacing:1.5px}
+  body.show-banner .lang-switcher{top:calc(var(--banner-h) + 1rem)}
+  .navbar{padding:1rem 1.5rem}
+  .nav-links{position:fixed;top:0;right:-100%;width:80%;max-width:340px;height:100vh;background:rgba(5,7,12,.98);backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;gap:2rem;transition:right .45s cubic-bezier(.2,.8,.2,1);border-left:1px solid rgba(90,140,255,.25);box-shadow:-20px 0 60px rgba(0,0,0,.5);z-index:1050}
+  .nav-links.open{right:0}
+  .nav-links a{font-size:1rem;letter-spacing:3px}
+  .nav-cta{display:none}
+  .hamburger{display:flex}
+  section{padding:5rem 1.5rem}
+  .game-block,.game-block.reverse{grid-template-columns:1fr}
+  .game-block.reverse .game-visual{order:0}
+  .game-block.reverse .game-body{order:1}
+  .game-visual{min-height:280px}
+  .game-body{padding:2rem 1.8rem}
+  .about-grid{grid-template-columns:1fr;gap:2.5rem}
+  .about-visual{max-width:280px}
+  .update-featured{grid-template-columns:1fr}
+  .update-visual{min-height:240px}
+  .update-body{padding:2rem}
+  .updates-secondary{grid-template-columns:1fr}
+  .yt-cards{grid-template-columns:1fr}
+  .discord-section{padding:6rem 1.5rem}
+  .btn-discord-xl{padding:1.1rem 2rem;font-size:.85rem;letter-spacing:2px}
+  .footer-top{grid-template-columns:1fr;gap:2rem}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .hero-title{letter-spacing:6px}
+  .hero-tagline{letter-spacing:8px}
+  .hud-corner{display:none}
+  .hud-tag{display:none}
+  .lang-switcher{position:fixed;top:1rem;right:1rem;z-index:1200;transform:scale(.9)}
+  .chapters-modal-content{padding:2.2rem 1.4rem 1.8rem;max-height:94vh}
+  .chapters-close{width:38px;height:38px;font-size:1rem}
+  .chapters-btn{font-size:.72rem;padding:.85rem 1.4rem;letter-spacing:3px}
+  .detail-body p{font-size:.95rem}
+  .detail-body p.lead{font-size:1.02rem}
+  .detail-body p.question{font-size:.92rem;padding:.9rem 1rem}
+  .chapter-card{padding:1.5rem 1.3rem}
+  .chapter-card h3{font-size:1.3rem}
+}
+@media(max-width:600px){
+  :root{--banner-h:48px}
+  .announce-banner{padding:0 2.2rem 0 .55rem}
+  .announce-inner{gap:.35rem}
+  .announce-new{font-size:.5rem;padding:.22rem .45rem;letter-spacing:1.5px}
+  .announce-text{font-size:.55rem;letter-spacing:1px}
+  .announce-cta{font-size:.48rem;padding:.28rem .5rem;letter-spacing:1px}
+  .announce-close{width:24px;height:24px;font-size:.7rem;right:.4rem}
+  .social-grid{grid-template-columns:1fr}
+  .about-cats{grid-template-columns:1fr}
+  .hero-eyebrow{letter-spacing:4px;font-size:.6rem;padding:.4rem 1rem}
+  .hero-title{letter-spacing:4px}
+  .hero-tagline{letter-spacing:5px;font-size:1.2rem}
+  .hero-buttons{flex-direction:column;align-items:stretch}
+  .hero-buttons .btn{justify-content:center}
+  .btn{padding:.9rem 1.5rem;font-size:.85rem}
+  .section-title{letter-spacing:2px}
+  .universe-chain{max-width:100%}
+  .uni-node{padding:1rem 1.2rem;font-size:.78rem;letter-spacing:2px}
+  .universe-motto{letter-spacing:4px;font-size:.95rem}
+  .update-features{grid-template-columns:1fr}
+  .game-actions{flex-direction:column;align-items:stretch}
+  .btn-store{justify-content:center}
+  .contact-buttons{flex-direction:column;align-items:stretch}
+  .btn-contact{justify-content:center}
+  .discord-title{letter-spacing:2px}
+  .scroll-hint{font-size:.55rem;letter-spacing:3px}
+  .lang-switcher{transform:scale(.82)}
+  .lang-btn{padding:.35rem .55rem;font-size:.6rem}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<!-- ANNOUNCEMENT BANNER — YA DISPONIBLE UPDATE 3 SHADOW PROTOCOL -->
+<div class="announce-banner" id="announceBanner" role="status" aria-live="polite">
+  <div class="announce-inner">
+    <span class="announce-new" data-i18n="announce.new">YA DISPONIBLE</span>
+    <span class="announce-text" data-i18n="announce.text">UPDATE 3 SHADOW PROTOCOL</span>
+    <a href="https://gamejolt.com/games/SHADOW_PROTOCOL14/1099504" target="_blank" rel="noopener" class="announce-cta" data-i18n="announce.cta">▶ PLAY NOW</a>
+  </div>
+  <button class="announce-close" type="button" id="announceClose" aria-label="Cerrar anuncio">✕</button>
+</div>
+
+<!-- SCROLL PROGRESS -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- PARTICLES -->
+<canvas id="fx-canvas"></canvas>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a href="#top" class="logo">IMAD<i>GAMER</i></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#top" class="nav-link" data-i18n="nav.home">INICIO</a></li>
+    <li><a href="#juegos" class="nav-link" data-i18n="nav.games">JUEGOS</a></li>
+    <li><a href="#universo" class="nav-link" data-i18n="nav.universe">UNIVERSO</a></li>
+    <li><a href="#actualizaciones" class="nav-link" data-i18n="nav.updates">ACTUALIZACIONES</a></li>
+    <li><a href="#comunidad" class="nav-link" data-i18n="nav.community">COMUNIDAD</a></li>
+    <li><a href="#redes" class="nav-link" data-i18n="nav.social">REDES</a></li>
+  </ul>
+  <div class="lang-switcher" id="langSwitcher" role="group" aria-label="Language selector">
+    <button class="lang-btn active" data-lang="es" type="button"><span class="flag">🇪🇸</span> ES</button>
+    <div class="lang-divider"></div>
+    <button class="lang-btn" data-lang="en" type="button"><span class="flag">🇬🇧</span> EN</button>
+  </div>
+  <a href="https://discord.gg/vdcusHvV8" target="_blank" rel="noopener" class="nav-cta" data-i18n="nav.discord">💬 DISCORD</a>
+  <button class="hamburger" id="hamburger" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <div class="hero-scene"></div>
+  <div class="hero-city"></div>
+  <div class="hero-smoke"></div>
+  <div class="hero-vignette"></div>
+  <div class="hud">
+    <div class="hud-corner tl"></div><div class="hud-corner tr"></div>
+    <div class="hud-corner bl"></div><div class="hud-corner br"></div>
+    <div class="hud-tag tl">SYS // ONLINE</div>
+    <div class="hud-tag tr green">BUILD 2026.01</div>
+    <div class="hud-tag bl purple" data-i18n="hud.universe">UNIVERSO IMADGAMER</div>
+    <div class="hud-tag br">v.1.0.4</div>
+  </div>
+  <div class="hero-content">
+    <span class="hero-eyebrow" data-i18n="hero.eyebrow">// ESTUDIO INDEPENDIENTE</span>
+    <h1 class="hero-title">IMADGAMER</h1>
+    <p class="hero-tagline" data-i18n="hero.tagline">JUEGOS. HISTORIAS. CAOS.</p>
+    <p class="hero-sub" data-i18n="hero.sub">El universo de juegos creado por ImadGamer.</p>
+    <div class="hero-buttons">
+      <a href="#juegos" class="btn btn-primary"><span class="ic">🎮</span> <span data-i18n="hero.btnExplore">EXPLORAR JUEGOS</span></a>
+      <a href="https://discord.gg/vdcusHvV8" target="_blank" rel="noopener" class="btn btn-outline"><span class="ic">💬</span> <span data-i18n="hero.btnDiscord">UNIRSE A DISCORD</span></a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span data-i18n="hero.scroll">DESPLÁZATE PARA EXPLORAR</span>
+    <div class="arrow"></div>
+  </div>
+</header>
+
+<!-- JUEGOS -->
+<section id="juegos">
+  <div class="section-head reveal">
+    <div class="section-eyebrow" data-i18n="games.eyebrow">// ARCHIVO DE JUEGOS</div>
+    <h2 class="section-title"><span data-i18n="games.title1">MIS</span> <span class="accent" data-i18n="games.title2">JUEGOS</span></h2>
+    <p class="section-desc" data-i18n="games.desc">Historias, supervivencia, acción y caos.</p>
+  </div>
+  <div class="chapters-btn-wrap reveal">
+    <button class="chapters-btn" id="openChapters" type="button">
+      <span class="ic">📖</span>
+      <span>CHAPTERS</span>
+      <span class="chapters-new" data-i18n="announce.new">NEW</span>
+    </button>
+  </div>
+
+  <article class="game-block reveal">
+    <div class="game-visual"><span class="visual-label">SERIE REBORN // CAP.01</span><div class="art">CITY<br>OF<br>DECAY</div></div>
+    <div class="game-body">
+      <span class="game-series" data-i18n="games.seriesReborn">SERIE REBORN</span>
+      <h3 class="game-name">CITY OF DECAY: <span class="accent">REBORN 1</span></h3>
+      <p class="game-story" data-i18n="games.cod1.story">El mundo cayó. La infección comenzó. Ahora solo queda sobrevivir.</p>
+      <div class="game-tags">
+        <span class="tag" data-i18n="games.tag.horror">HORROR</span>
+        <span class="tag" data-i18n="games.tag.survival">SUPERVIVENCIA</span>
+        <span class="tag" data-i18n="games.tag.story">HISTORIA</span>
+      </div>
+      <div class="game-actions">
+        <a href="https://gamejolt.com/games/CITYOFDECAY_REBORN1/1103339" target="_blank" rel="noopener" class="btn-store btn-gamejolt"><span class="ic">🎮</span> GAME JOLT</a>
+        <a href="https://imad-gamer14.itch.io/city-of-decay-reborn-1" target="_blank" rel="noopener" class="btn-store btn-itch"><span class="ic">🕹️</span> ITCH.IO</a>
+      </div>
+    </div>
+  </article>
+
+  <article class="game-block reverse reveal">
+    <div class="game-visual"><span class="visual-label green">SERIE REBORN // CAP.02</span><div class="art" style="color:#3dff88;text-shadow:0 0 40px #3dff88,0 0 80px rgba(61,255,136,.5)">CITY<br>OF<br>DECAY<br>RUSH</div></div>
+    <div class="game-body">
+      <span class="game-series" data-i18n="games.seriesReborn">SERIE REBORN</span>
+      <h3 class="game-name">CITY OF DECAY: REBORN - <span class="accent" style="color:#3dff88;text-shadow:0 0 24px #3dff88">RUSH</span></h3>
+      <p class="game-story" data-i18n="games.rush.story">Get ready for an epic 2D platforming adventure set in the universe of City Of Decay: REBORN! Explore a cartoon-inspired world, overcome challenging obstacles, and discover a new side of the City Of Decay universe.</p>
+      <div class="game-tags">
+        <span class="tag" data-i18n="games.tag.platformer">2D PLATFORMER</span>
+        <span class="tag" data-i18n="games.tag.adventure">AVENTURA</span>
+        <span class="tag">CITY OF DECAY</span>
+      </div>
+      <div class="game-actions">
+        <a href="https://gamejolt.com/games/CITYOFDECAY-REBORN_RUSH/1106153" target="_blank" rel="noopener" class="btn-store btn-gamejolt"><span class="ic">🎮</span> GAME JOLT</a>
+        <a href="https://imad-gamer14.itch.io/cityofdecay-reborn-rush" target="_blank" rel="noopener" class="btn-store btn-itch"><span class="ic">🕹️</span> ITCH.IO</a>
+      </div>
+    </div>
+  </article>
+
+  <article class="game-block reveal">
+    <div class="game-visual"><span class="visual-label purple">OUTBREAK // ACTIVE</span><div class="art" style="color:#a86bff;text-shadow:0 0 40px #a86bff,0 0 80px rgba(168,107,255,.5)">SHADOW<br>PROTOCOL</div></div>
+    <div class="game-body">
+      <span class="game-series purple">OUTBREAK</span>
+      <h3 class="game-name">SHADOW <span class="accent" style="color:#a86bff;text-shadow:0 0 24px #a86bff">PROTOCOL</span></h3>
+      <p class="game-story" data-i18n="games.shadow.story">Entra en el campo de batalla.</p>
+      <div class="game-tags">
+        <span class="tag" data-i18n="games.tag.shooter">SHOOTER</span>
+        <span class="tag" data-i18n="games.tag.action">ACCIÓN</span>
+        <span class="tag" data-i18n="games.tag.zombies">ZOMBIES</span>
+      </div>
+      <div class="game-actions">
+        <a href="https://gamejolt.com/games/SHADOW_PROTOCOL14/1099504" target="_blank" rel="noopener" class="btn-store btn-gamejolt"><span class="ic">🎮</span> GAME JOLT</a>
+        <a href="https://imad-gamer14.itch.io/shadow-protocol" target="_blank" rel="noopener" class="btn-store btn-itch"><span class="ic">🕹️</span> ITCH.IO</a>
+      </div>
+    </div>
+  </article>
+
+  <article class="game-block reverse reveal">
+    <div class="game-visual"><span class="visual-label green">EN DESARROLLO</span><div class="art" style="color:#3dff88;text-shadow:0 0 40px #3dff88,0 0 80px rgba(61,255,136,.5)">FLIGHT<br>CHAOS</div></div>
+    <div class="game-body">
+      <span class="game-series orange" data-i18n="games.inDev">EN DESARROLLO</span>
+      <h3 class="game-name">FLIGHT <span class="accent" style="color:#3dff88;text-shadow:0 0 24px #3dff88">CHAOS</span></h3>
+      <p class="game-story" data-i18n="games.flight.story">El avión está fallando.<br>Los motores están ardiendo.<br>Y ahora depende de ti.</p>
+      <div class="game-tags">
+        <span class="tag" data-i18n="games.tag.multiplayer">MULTIJUGADOR</span>
+        <span class="tag" data-i18n="games.tag.aviation">AVIACIÓN</span>
+        <span class="tag" data-i18n="games.tag.chaos">CAOS</span>
+      </div>
+      <div class="game-actions">
+        <span class="btn-store btn-disabled"><span class="ic">⏳</span> <span data-i18n="games.comingSoon">PRÓXIMAMENTE</span></span>
+      </div>
+    </div>
+  </article>
+
+  <div class="section-head reveal" style="margin-top:6rem;margin-bottom:0">
+    <div class="section-eyebrow" data-i18n="lab.eyebrow">// LABORATORIO</div>
+    <h2 class="section-title"><span data-i18n="lab.title1">OTROS</span> <span class="accent" data-i18n="lab.title2">PROYECTOS</span></h2>
+    <p class="section-desc" data-i18n="lab.desc">Prototipos, ideas y proyectos en exploración.</p>
+  </div>
+  <div class="other-projects">
+    <div class="mini-project reveal"><div class="mini-img">🌊</div><h4 class="mini-name">NEON ABYSS</h4><p class="mini-genre" data-i18n="mini.neon.genre">Exploración / Misterio</p><span class="mini-status status-dev" data-i18n="mini.neon.status">FRACASO</span></div>
+    <div class="mini-project reveal"><div class="mini-img">🏎️</div><h4 class="mini-name">SPEED RUSH</h4><p class="mini-genre" data-i18n="mini.speed.genre">Carreras / Arcade</p><span class="mini-status status-dev" data-i18n="mini.speed.status">FRACASO</span></div>
+    <div class="mini-project reveal"><div class="mini-img">🌆</div><h4 class="mini-name">BROOKLYN CITY RP</h4><p class="mini-genre" data-i18n="mini.brooklyn.genre">Rol / Multijugador</p><span class="mini-status status-dev" data-i18n="mini.brooklyn.status">FRACASO</span></div>
+    <div class="mini-project reveal"><div class="mini-img">🔫</div><h4 class="mini-name">GUN BLASTER</h4><p class="mini-genre" data-i18n="mini.gun.genre">Shooter / Acción</p><span class="mini-status status-dev" data-i18n="mini.gun.status">SIN UPDATES</span></div>
+    <div class="mini-project reveal"><div class="mini-img">🧟</div><h4 class="mini-name">CITY OF DECAY — ROBLOX</h4><p class="mini-genre" data-i18n="mini.roblox.genre">Supervivencia / Multijugador</p><span class="mini-status status-play" data-i18n="mini.roblox.status">ÉXITO TOTAL</span></div>
+  </div>
+</section>
+
+<!-- UNIVERSO -->
+<section class="universe" id="universo">
+  <div class="universe-inner">
+    <div class="section-eyebrow" style="justify-content:center;display:flex" data-i18n="universe.eyebrow">// CONEXIÓN DE MUNDOS</div>
+    <h2 class="universe-title reveal" data-i18n="universe.title">EL UNIVERSO DE IMADGAMER</h2>
+    <p class="universe-sub reveal" data-i18n="universe.sub">Cada juego tiene su propia identidad. El universo de ImadGamer sigue creciendo.</p>
+    <div class="universe-chain reveal">
+      <div class="uni-node">CITY OF DECAY: REBORN</div>
+      <div class="uni-arrow">↓</div>
+      <div class="uni-node purple">SHADOW PROTOCOL</div>
+      <div class="uni-arrow" style="color:#3dff88">↓</div>
+      <div class="uni-node rush">CITY OF DECAY: REBORN - RUSH</div>
+      <div class="uni-arrow" style="color:#3dff88">↓</div>
+      <div class="uni-node green">FLIGHT CHAOS</div>
+    </div>
+    <p class="universe-motto reveal" data-i18n="universe.motto">DIFERENTES JUEGOS. DIFERENTES HISTORIAS. UN UNIVERSO.</p>
+  </div>
+</section>
+
+<!-- ===== ACTUALIZACIONES ===== -->
+<section id="actualizaciones">
+  <div class="section-head reveal">
+    <div class="section-eyebrow" data-i18n="updates.eyebrow">// ÚLTIMAS NOTICIAS</div>
+    <h2 class="section-title"><span data-i18n="updates.title1">ÚLTIMAS</span> <span class="accent" data-i18n="updates.title2">ACTUALIZACIONES</span></h2>
+    <p class="section-desc" data-i18n="updates.desc">Lo último sobre los proyectos de ImadGamer.</p>
+  </div>
+
+  <!-- FEATURED (NEWEST): SHADOW PROTOCOL UPDATE 3 -->
+  <article class="update-featured survival reveal">
+    <div class="update-visual"><div class="pumpkin">🎮</div></div>
+    <div class="update-body">
+      <div class="update-badge-wrap">
+        <span class="update-badge" data-i18n="updates.shadow3.badge">// YA DISPONIBLE</span>
+        <span class="new-badge" data-i18n="announce.new">YA DISPONIBLE</span>
+      </div>
+      <h3 class="update-title">SHADOW PROTOCOL:<br><span class="hl">UPDATE 3</span><br><span style="font-size:.72em;letter-spacing:2px;color:#3dff88;text-shadow:0 0 20px rgba(61,255,136,.4)">LOS TORNEOS</span></h3>
+      <p class="update-desc" data-i18n="updates.shadow3.desc">La actualización 3 de Shadow Protocol ya está disponible. Los torneos han llegado al campo de batalla. Enfréntate a nuevos desafíos y demuestra quién es el mejor.</p>
+      <div class="update-features">
+        <span class="up-feat" data-i18n="updates.shadow3.feat1">NUEVOS TORNEOS</span>
+        <span class="up-feat" data-i18n="updates.shadow3.feat2">SHADOW PROTOCOL</span>
+        <span class="up-feat" data-i18n="updates.shadow3.feat3">YA DISPONIBLE</span>
+        <span class="up-feat" data-i18n="updates.shadow3.feat4">COMPETITIVO</span>
+      </div>
+      <div style="display:flex;gap:.8rem;flex-wrap:wrap;align-self:flex-start">
+        <a href="https://gamejolt.com/games/SHADOW_PROTOCOL14/1099504" target="_blank" rel="noopener" class="btn-store btn-gamejolt" style="font-size:.85rem;padding:.85rem 1.6rem"><span class="ic">🎮</span> GAME JOLT</a>
+        <a href="https://imad-gamer14.itch.io/shadow-protocol" target="_blank" rel="noopener" class="btn-store btn-itch" style="font-size:.85rem;padding:.85rem 1.6rem"><span class="ic">🕹️</span> ITCH.IO</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- FEATURED: CITY OF DECAY REBORN 3 -->
+  <article class="update-featured city reveal">
+    <div class="update-visual"><div class="pumpkin">🧟</div></div>
+    <div class="update-body">
+      <div class="update-badge-wrap">
+        <span class="update-badge" data-i18n="updates.badgeReborn3">// PRÓXIMO CAPÍTULO</span>
+        <span class="new-badge" data-i18n="announce.new">NEW</span>
+      </div>
+      <h3 class="update-title">🧟 CITY OF DECAY:<br><span class="hl">REBORN 3</span><br><span style="font-size:.72em;letter-spacing:2px;color:#4d9fff;text-shadow:0 0 20px rgba(77,159,255,.4)">2027</span></h3>
+      <p class="update-desc" data-i18n="updates.reborn3.desc">La serie REBORN continúa. The Caves llega en 2027.</p>
+      <div class="update-features">
+        <span class="up-feat" data-i18n="updates.reborn3.feat1">SERIE REBORN</span>
+        <span class="up-feat" data-i18n="updates.reborn3.feat2">THE CAVES</span>
+        <span class="up-feat" data-i18n="games.tag.horror">HORROR</span>
+        <span class="up-feat" data-i18n="games.tag.survival">SUPERVIVENCIA</span>
+      </div>
+      <span class="btn-store btn-disabled" style="align-self:flex-start"><span class="ic">⏳</span> <span data-i18n="games.comingSoon">PRÓXIMAMENTE</span></span>
+    </div>
+  </article>
+
+  <!-- SECONDARY -->
+  <div class="updates-secondary">
+    <article class="update-card reveal">
+      <div class="date" data-i18n="updates.card1.date">🏙️ CAPÍTULO 1</div>
+      <span class="cat">CITY OF DECAY: REBORN 1</span>
+      <h4 data-i18n="updates.card1.title">REMASTERIZADO — YA DISPONIBLE</h4>
+      <p data-i18n="updates.card1.desc">El Capítulo 1 regresa con un nuevo diseño y una experiencia de terror mejorada. Ya disponible.</p>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <a href="https://gamejolt.com/games/CITYOFDECAY_REBORN1/1103339" target="_blank" rel="noopener" class="btn-store btn-gamejolt" style="padding:.55rem 1.2rem;font-size:.72rem"><span class="ic">🎮</span> GAME JOLT</a>
+        <a href="https://imad-gamer14.itch.io/city-of-decay-reborn-1" target="_blank" rel="noopener" class="btn-store btn-itch" style="padding:.55rem 1.2rem;font-size:.72rem"><span class="ic">🕹️</span> ITCH.IO</a>
+      </div>
+    </article>
+    <article class="update-card reveal">
+      <div class="date" data-i18n="updates.card2.date">✈️ EN DESARROLLO</div>
+      <span class="cat">FLIGHT CHAOS</span>
+      <h4 data-i18n="updates.card2.title">AVANCES DEL PROYECTO</h4>
+      <p data-i18n="updates.card2.desc">El desarrollo continúa en la experiencia multijugador de aviación llena de caos. Lanzamiento: DICIEMBRE 2026.</p>
+      <span class="btn-store btn-disabled" style="padding:.55rem 1.2rem;font-size:.72rem;align-self:flex-start"><span class="ic">⏳</span> <span data-i18n="updates.card2.status">DICIEMBRE 2026</span></span>
+    </article>
+  </div>
+</section>
+
+<!-- YOUTUBE -->
+<section class="yt-section" id="youtube">
+  <div class="yt-inner">
+    <div class="section-eyebrow" style="justify-content:center;display:flex" data-i18n="yt.eyebrow">// CANAL OFICIAL</div>
+    <h2 class="section-title reveal" style="text-align:center"><span data-i18n="yt.title1">▶️ IMADGAMER EN</span> <span style="color:#ff2a2a;text-shadow:0 0 24px #ff2a2a">YOUTUBE</span></h2>
+    <p class="section-desc reveal" style="margin:1rem auto 2.5rem;text-align:center" data-i18n="yt.desc">Vídeos, gameplays, trailers, actualizaciones, proyectos y mucho más.</p>
+    <a href="https://www.youtube.com/@ImadGamer-14" target="_blank" rel="noopener" class="btn btn-primary reveal" style="background:linear-gradient(135deg,#ff2a2a,#b80000);box-shadow:0 0 24px rgba(255,42,42,.5),inset 0 0 20px rgba(255,255,255,.15)"><span class="ic">▶</span> <span data-i18n="yt.btn">VER CANAL DE YOUTUBE</span></a>
+    <div class="yt-cards">
+      <a href="https://www.youtube.com/@ImadGamer-14" target="_blank" rel="noopener" class="yt-card reveal"><div class="yt-thumb"><div class="play">▶</div></div><div class="yt-meta"><div class="yt-label" data-i18n="yt.card1.label">// ÚLTIMO VÍDEO</div><div class="yt-name" data-i18n="yt.card1.name">Contenido reciente del canal</div><div class="yt-hint" data-i18n="yt.card.hint">Estructura lista para vídeo real</div></div></a>
+      <a href="https://www.youtube.com/@ImadGamer-14" target="_blank" rel="noopener" class="yt-card reveal"><div class="yt-thumb"><div class="play">▶</div></div><div class="yt-meta"><div class="yt-label" data-i18n="yt.card2.label">// TRAILER</div><div class="yt-name" data-i18n="yt.card2.name">Trailers oficiales</div><div class="yt-hint" data-i18n="yt.card.hint">Estructura lista para vídeo real</div></div></a>
+      <a href="https://www.youtube.com/@ImadGamer-14" target="_blank" rel="noopener" class="yt-card reveal"><div class="yt-thumb"><div class="play">▶</div></div><div class="yt-meta"><div class="yt-label" data-i18n="yt.card3.label">// ACTUALIZACIÓN</div><div class="yt-name" data-i18n="yt.card3.name">Noticias y avances</div><div class="yt-hint" data-i18n="yt.card.hint">Estructura lista para vídeo real</div></div></a>
+    </div>
+  </div>
+</section>
+
+<!-- DISCORD -->
+<section class="discord-section" id="comunidad">
+  <div class="discord-inner">
+    <div class="section-eyebrow" style="justify-content:center;display:flex;color:#7a86ff" data-i18n="discord.eyebrow">// COMUNIDAD OFICIAL</div>
+    <h2 class="discord-title reveal" data-i18n="discord.title">💬 ÚNETE A LA COMUNIDAD</h2>
+    <p class="discord-sub reveal" data-i18n="discord.sub">Noticias, actualizaciones, juegos, eventos y comunidad.</p>
+    <a href="https://discord.gg/vdcusHvV8" target="_blank" rel="noopener" class="btn-discord-xl reveal"><span data-i18n="discord.btn">💬 UNIRME AL DISCORD</span></a>
+  </div>
+</section>
+
+<!-- REDES -->
+<section id="redes">
+  <div class="section-head reveal">
+    <div class="section-eyebrow" data-i18n="social.eyebrow">// SIGUE EL UNIVERSO</div>
+    <h2 class="section-title"><span data-i18n="social.title1">SIGUE EL</span> <span class="accent" data-i18n="social.title2">UNIVERSO</span></h2>
+    <p class="section-desc" data-i18n="social.desc">Toda la actividad de ImadGamer en un solo lugar.</p>
+  </div>
+  <div class="social-grid">
+    <div class="social-block yt reveal"><div class="soc-icon">▶️</div><h3 class="soc-name">YOUTUBE</h3><p class="soc-desc" data-i18n="social.yt.desc">Vídeos, trailers, gameplays y contenido gaming.</p><a href="https://www.youtube.com/@ImadGamer-14" target="_blank" rel="noopener" class="btn-soc" data-i18n="social.yt.btn">VER CANAL</a></div>
+    <div class="social-block dc reveal"><div class="soc-icon">💬</div><h3 class="soc-name">DISCORD</h3><p class="soc-desc" data-i18n="social.dc.desc">Únete a la comunidad oficial de ImadGamer.</p><a href="https://discord.gg/vdcusHvV8" target="_blank" rel="noopener" class="btn-soc" data-i18n="social.dc.btn">UNIRSE</a></div>
+    <div class="social-block tt reveal"><div class="soc-icon">🎵</div><h3 class="soc-name">TIKTOK</h3><p class="soc-desc" data-i18n="social.tt.desc">Clips, momentos y contenido corto.</p><a href="https://www.tiktok.com/@imad.gamer14" target="_blank" rel="noopener" class="btn-soc" data-i18n="social.tt.btn">SEGUIR</a></div>
+    <div class="social-block tw reveal"><div class="soc-icon">🎥</div><h3 class="soc-name">TWITCH</h3><p class="soc-desc" data-i18n="social.tw.desc">Directos y streams de videojuegos.</p><a href="https://www.twitch.tv/imadgamer14" target="_blank" rel="noopener" class="btn-soc" data-i18n="social.tw.btn">VER DIRECTOS</a></div>
+  </div>
+</section>
+
+<!-- SOBRE MÍ -->
+<section id="sobre-mi">
+  <div class="section-head reveal">
+    <div class="section-eyebrow" data-i18n="about.eyebrow">// PERFIL DEL CREADOR</div>
+    <h2 class="section-title"><span data-i18n="about.title1">¿QUIÉN ES</span> <span class="accent">IMADGAMER</span><span data-i18n="about.title2">?</span></h2>
+  </div>
+  <div class="about-grid">
+    <div class="about-text-block reveal">
+      <p data-i18n="about.p1">ImadGamer es un creador independiente centrado en videojuegos, contenido gaming y mundos originales.</p>
+      <p data-i18n="about.p2">El objetivo es construir experiencias propias, historias auténticas y una comunidad que crezca junto a cada proyecto.</p>
+      <div class="about-cats">
+        <div class="about-cat"><span class="icon">🎮</span><div class="lbl" data-i18n="about.cat1.lbl">VIDEOJUEGOS</div><div class="sub" data-i18n="about.cat1.sub">Proyectos originales</div></div>
+        <div class="about-cat"><span class="icon">🎬</span><div class="lbl" data-i18n="about.cat2.lbl">CONTENIDO</div><div class="sub" data-i18n="about.cat2.sub">Vídeos y directos</div></div>
+        <div class="about-cat"><span class="icon">🌐</span><div class="lbl" data-i18n="about.cat3.lbl">COMUNIDAD</div><div class="sub" data-i18n="about.cat3.sub">Jugadores y seguidores</div></div>
+        <div class="about-cat"><span class="icon">🚀</span><div class="lbl" data-i18n="about.cat4.lbl">NUEVOS PROYECTOS</div><div class="sub" data-i18n="about.cat4.sub">Siempre en marcha</div></div>
+      </div>
+    </div>
+    <div class="about-visual reveal"><span class="glyph">🎮</span></div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section id="contacto">
+  <div class="section-head reveal" style="text-align:center">
+    <div class="section-eyebrow" style="justify-content:center;display:flex" data-i18n="contact.eyebrow">// CONTACTO</div>
+    <h2 class="section-title">📩 <span class="accent" data-i18n="contact.title">CONTACTO</span></h2>
+    <p class="section-desc" style="margin:1rem auto 0;text-align:center" data-i18n="contact.desc">¿Tienes una idea, quieres colaborar o simplemente quieres contactar conmigo?</p>
+  </div>
+  <div class="contact-buttons reveal">
+    <a href="https://discord.gg/vdcusHvV8" target="_blank" rel="noopener" class="btn-contact dc">💬 DISCORD</a>
+    <a href="https://www.youtube.com/@ImadGamer-14" target="_blank" rel="noopener" class="btn-contact yt">▶️ YOUTUBE</a>
+    <a href="https://www.twitch.tv/imadgamer14" target="_blank" rel="noopener" class="btn-contact tw">🎥 TWITCH</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#top" class="logo">IMAD<i>GAMER</i></a>
+        <p data-i18n="footer.brand">Juegos • Contenido • Comunidad<br>Universo independiente en constante expansión.</p>
+      </div>
+      <div class="footer-col">
+        <h5 data-i18n="footer.nav">NAVEGAR</h5>
+        <ul>
+          <li><a href="#top" data-i18n="nav.home">INICIO</a></li>
+          <li><a href="#juegos" data-i18n="nav.games">JUEGOS</a></li>
+          <li><a href="#universo" data-i18n="nav.universe">UNIVERSO</a></li>
+          <li><a href="#actualizaciones" data-i18n="nav.updates">ACTUALIZACIONES</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5 data-i18n="footer.community">COMUNIDAD</h5>
+        <ul>
+          <li><a href="#comunidad" data-i18n="nav.discordName">DISCORD</a></li>
+          <li><a href="#redes" data-i18n="nav.social">REDES</a></li>
+          <li><a href="#sobre-mi" data-i18n="footer.about">SOBRE MÍ</a></li>
+          <li><a href="#contacto" data-i18n="footer.contact">CONTACTO</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5 data-i18n="footer.follow">SÍGUEME</h5>
+        <ul>
+          <li><a href="https://www.youtube.com/@ImadGamer-14" target="_blank" rel="noopener">YOUTUBE</a></li>
+          <li><a href="https://discord.gg/vdcusHvV8" target="_blank" rel="noopener">DISCORD</a></li>
+          <li><a href="https://www.tiktok.com/@imad.gamer14" target="_blank" rel="noopener">TIKTOK</a></li>
+          <li><a href="https://www.twitch.tv/imadgamer14" target="_blank" rel="noopener">TWITCH</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p data-i18n="footer.copyright">© 2026 ImadGamer. Todos los derechos reservados.</p>
+      <div class="footer-status">
+        <span><span class="dot"></span> <span data-i18n="footer.status">SISTEMA OPERATIVO</span></span>
+        <span>BUILD 2026.01</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== CHAPTERS MODAL ===== -->
+<div class="chapters-modal" id="chaptersModal" role="dialog" aria-modal="true" aria-labelledby="chaptersTitle">
+  <div class="chapters-modal-content">
+    <button class="chapters-close" id="chaptersClose" type="button" aria-label="Cerrar">✕</button>
+
+    <div class="chapters-view active" id="chaptersListView">
+      <div class="chapters-header">
+        <span class="eyebrow" data-i18n="chapters.eyebrow">// CITY OF DECAY</span>
+        <h2 id="chaptersTitle" data-i18n="chapters.title">CHAPTERS</h2>
+      </div>
+      <div class="chapters-grid">
+        <button class="chapter-card" type="button" data-target="reborn2View">
+          <span class="num" data-i18n="chapters.cap2">CAPÍTULO 02</span>
+          <h3>REBORN 2</h3>
+          <p data-i18n="chapters.reborn2.desc">The nightmare returns. Welcome back to the abandoned city.</p>
+          <span class="status" data-i18n="chapters.reborn2.status">PRÓXIMO CAPÍTULO</span>
+        </button>
+        <button class="chapter-card" type="button" data-target="reborn3View">
+          <span class="num" data-i18n="chapters.cap3">CAPÍTULO 03</span>
+          <h3>REBORN 3</h3>
+          <p data-i18n="chapters.reborn3.desc">The city was just the beginning... The nightmare continues.</p>
+          <span class="status" data-i18n="chapters.reborn3.status">PRÓXIMAMENTE</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CHAPTER 2: REBORN 2 -->
+    <div class="chapters-view chapters-detail" id="reborn2View">
+      <button class="detail-back" type="button" data-back="chaptersListView">
+        <span class="arrow">←</span> <span data-i18n="chapters.back">VOLVER A CHAPTERS</span>
+      </button>
+      <span class="eyebrow" style="font-family:'Orbitron',sans-serif;font-size:.68rem;letter-spacing:6px;color:#4d9fff;text-transform:uppercase;text-shadow:0 0 12px rgba(77,159,255,.6);display:inline-block;margin-bottom:.8rem">// CITY OF DECAY</span>
+      <h2 class="detail-title">CITY OF DECAY:<br><span class="accent">REBORN 2</span></h2>
+      <p class="detail-subtitle">THE NIGHTMARE RETURNS</p>
+      <div class="detail-body">
+        <p class="lead" data-i18n="chapters.reborn2.p1">The nightmare returns.</p>
+        <p data-i18n="chapters.reborn2.p2">Welcome back to the abandoned city, a place filled with secrets, forgotten experiments, and terrifying entities waiting in the darkness. Your mission is simple: explore the ruined streets, search for keys, unlock sealed areas, and find a way to reach the subway. But escaping won't be easy. Something is watching you.</p>
+        <p data-i18n="chapters.reborn2.p3">As you explore the city, you will discover hidden secrets, mysterious notes, and clues that reveal more about the events that destroyed this place. Every locked door could hide something important, and every corridor could bring you closer to the truth — or into danger.</p>
+        <p data-i18n="chapters.reborn2.p4">Be careful. Dudge is still out there, and the darkness is not as empty as it seems. Keep your flashlight ready, pay attention to your surroundings, and never assume you're alone. Other entities may be closer than you think.</p>
+        <p data-i18n="chapters.reborn2.p5">With new challenges, terrifying encounters, and secrets waiting to be discovered, CITY OF DECAY: REBORN 2 takes you deeper into the mysterious world of City Of Decay.</p>
+        <p class="question" data-i18n="chapters.reborn2.p6">Will you find the way out, or will the city become your final destination?</p>
+        <p class="final" data-i18n="chapters.reborn2.p7">The nightmare is far from over.</p>
+      </div>
+      <p class="detail-credit" data-i18n="chapters.detail.credit">Developed by ImadGamer14.</p>
+    </div>
+
+    <!-- CHAPTER 3: REBORN 3 -->
+    <div class="chapters-view chapters-detail" id="reborn3View">
+      <button class="detail-back" type="button" data-back="chaptersListView">
+        <span class="arrow">←</span> <span data-i18n="chapters.back">VOLVER A CHAPTERS</span>
+      </button>
+      <span class="eyebrow" style="font-family:'Orbitron',sans-serif;font-size:.68rem;letter-spacing:6px;color:#4d9fff;text-transform:uppercase;text-shadow:0 0 12px rgba(77,159,255,.6);display:inline-block;margin-bottom:.8rem">// CITY OF DECAY</span>
+      <h2 class="detail-title">CITY OF DECAY:<br><span class="accent">REBORN 3</span></h2>
+      <p class="detail-subtitle">THE CAVES</p>
+      <div class="detail-body">
+        <p class="lead" data-i18n="chapters.reborn3.p1">THE CITY WAS JUST THE BEGINNING...</p>
+        <p data-i18n="chapters.reborn3.p2">Far beneath the abandoned city lies a forgotten underground world. A place where darkness never ends, where strange experiments were abandoned, and where something has been waiting for years.</p>
+        <p data-i18n="chapters.reborn3.p3">You thought you had escaped the nightmare. You were wrong.</p>
+        <p data-i18n="chapters.reborn3.p4">Explore enormous underground caves, discover terrifying secrets, uncover classified experiments and face creatures that were never supposed to exist.</p>
+        <p data-i18n="chapters.reborn3.p5">But be careful... <strong>YOU ARE NOT ALONE DOWN THERE.</strong></p>
+        <p data-i18n="chapters.reborn3.p6">Every tunnel hides a mystery. Every sound could be your last warning. And deep inside the caves, something far more dangerous than anything you've faced before is waiting.</p>
+        <p data-i18n="chapters.reborn3.p7">Can you survive the darkness? Can you uncover the truth?</p>
+        <p class="question" data-i18n="chapters.reborn3.p8">THE DEEPER YOU GO, THE WORSE IT GETS.</p>
+        <p class="final" data-i18n="chapters.reborn3.p9">THE NIGHTMARE CONTINUES.</p>
+        <p style="text-align:center;font-weight:700;color:#4d9fff;letter-spacing:2px;" data-i18n="chapters.reborn3.credit">IMADGAMER14 PRESENTS</p>
+        <h3 style="text-align:center;font-family:'Orbitron',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#fff;margin-top:1.5rem;" data-i18n="chapters.reborn3.title">CITY OF DECAY: REBORN 3 — THE CAVES</h3>
+      </div>
+      <p class="detail-credit" data-i18n="chapters.detail.credit">Developed by ImadGamer14.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== PARTICLES ===== */
+(function(){
+  const c=document.getElementById('fx-canvas');const ctx=c.getContext('2d');let w,h,parts=[];const COUNT=80;
+  function resize(){w=c.width=innerWidth;h=c.height=innerHeight}
+  function init(){parts=[];for(let i=0;i<COUNT;i++){parts.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.6+.4,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.5+.15,p:Math.random()*Math.PI*2,ps:Math.random()*.02+.005,c:Math.random()>.6?'168,107,255':(Math.random()>.5?'61,255,136':'77,159,255')})}}
+  function draw(){ctx.clearRect(0,0,w,h);for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.p+=p.ps;if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;const al=p.a*(.55+.45*Math.sin(p.p));ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(${p.c},${al})`;ctx.shadowColor=`rgba(${p.c},${al})`;ctx.shadowBlur=10;ctx.fill()}ctx.shadowBlur=0;requestAnimationFrame(draw)}
+  resize();init();draw();addEventListener('resize',()=>{resize();init()});
+})();
+
+/* ===== NAVBAR SCROLL + PROGRESS + ACTIVE LINK ===== */
+(function(){
+  const nav=document.getElementById('navbar');const bar=document.getElementById('scrollProgress');const links=document.querySelectorAll('.nav-link');const sections=['top','juegos','universo','actualizaciones','comunidad','redes'];
+  function onScroll(){const y=scrollY;if(y>40)nav.classList.add('scrolled');else nav.classList.remove('scrolled');const max=document.documentElement.scrollHeight-innerHeight;bar.style.width=((y/max)*100)+'%';let current='top';sections.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<=innerHeight*.4)current=id});links.forEach(l=>{const href=l.getAttribute('href').replace('#','');l.classList.toggle('active',href===current)})}
+  addEventListener('scroll',onScroll,{passive:true});onScroll();
+})();
+
+/* ===== HAMBURGER ===== */
+(function(){
+  const h=document.getElementById('hamburger');const n=document.getElementById('navLinks');
+  h.addEventListener('click',()=>{h.classList.toggle('active');n.classList.toggle('open')});
+  document.querySelectorAll('.nav-link').forEach(a=>a.addEventListener('click',()=>{h.classList.remove('active');n.classList.remove('open')}));
+  document.addEventListener('click',e=>{if(n.classList.contains('open')&&!n.contains(e.target)&&!h.contains(e.target)){h.classList.remove('active');n.classList.remove('open')}});
+})();
+
+/* ===== REVEAL ===== */
+(function(){
+  const io=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}})},{threshold:.12,rootMargin:'0px 0px -60px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+/* ===== HERO PARALLAX ===== */
+(function(){
+  const content=document.querySelector('.hero-content');const city=document.querySelector('.hero-city');if(!content)return;
+  addEventListener('scroll',()=>{const y=scrollY;if(y<innerHeight){content.style.transform=`translateY(${y*.18}px)`;content.style.opacity=String(1-(y/(innerHeight*.95)));if(city)city.style.transform=`translateY(${y*.25}px)`}},{passive:true});
+})();
+
+/* ===== SMOOTH SCROLL ===== */
+document.querySelectorAll('a[href="#top"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();window.scrollTo({top:0,behavior:'smooth'})})});
+
+/* ===== CHAPTERS MODAL ===== */
+(function(){
+  const modal=document.getElementById('chaptersModal');const openBtn=document.getElementById('openChapters');const closeBtn=document.getElementById('chaptersClose');const chaptersList=document.getElementById('chaptersListView');const contentEl=modal?modal.querySelector('.chapters-modal-content'):null;
+  if(!modal||!openBtn)return;
+  function showView(viewEl){modal.querySelectorAll('.chapters-view').forEach(v=>v.classList.remove('active'));if(viewEl){void viewEl.offsetWidth;viewEl.classList.add('active')}if(contentEl)contentEl.scrollTop=0}
+  function openModal(){modal.classList.add('open');document.body.style.overflow='hidden';showView(chaptersList)}
+  function closeModal(){modal.classList.remove('open');document.body.style.overflow=''}
+  openBtn.addEventListener('click',openModal);if(closeBtn)closeBtn.addEventListener('click',closeModal);
+  modal.querySelectorAll('.chapter-card[data-target]').forEach(card=>{card.addEventListener('click',()=>{const t=document.getElementById(card.getAttribute('data-target'));if(t)showView(t)})});
+  modal.querySelectorAll('.detail-back[data-back]').forEach(btn=>{btn.addEventListener('click',()=>{const t=document.getElementById(btn.getAttribute('data-back'));if(t)showView(t)})});
+  modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeModal()});
+})();
+
+/* ===== ANNOUNCEMENT BANNER ===== */
+(function(){
+  const banner=document.getElementById('announceBanner');
+  const closeBtn=document.getElementById('announceClose');
+  if(!banner)return;
+
+  let dismissed=false;
+  try{dismissed=sessionStorage.getItem('shadow-update3-banner-dismissed')==='1'}catch(e){}
+  if(!dismissed){setTimeout(()=>{document.body.classList.add('show-banner')},700)}
+
+  function closeBanner(){
+    document.body.classList.remove('show-banner');
+    try{sessionStorage.setItem('shadow-update3-banner-dismissed','1')}catch(e){}
+  }
+  if(closeBtn)closeBtn.addEventListener('click',closeBanner);
+})();
+
+/* ===== LANGUAGE SWITCHER ===== */
+(function(){
+  const translations={
+    es:{
+      "nav.home":"INICIO","nav.games":"JUEGOS","nav.universe":"UNIVERSO","nav.updates":"ACTUALIZACIONES","nav.community":"COMUNIDAD","nav.social":"REDES","nav.discord":"💬 DISCORD","nav.discordName":"DISCORD",
+      "hud.universe":"UNIVERSO IMADGAMER",
+      "hero.eyebrow":"// ESTUDIO INDEPENDIENTE","hero.tagline":"JUEGOS. HISTORIAS. CAOS.","hero.sub":"El universo de juegos creado por ImadGamer.","hero.btnExplore":"EXPLORAR JUEGOS","hero.btnDiscord":"UNIRSE A DISCORD","hero.scroll":"DESPLÁZATE PARA EXPLORAR",
+      "announce.new":"YA DISPONIBLE","announce.text":"UPDATE 3 SHADOW PROTOCOL","announce.cta":"▶ PLAY NOW",
+      "games.eyebrow":"// ARCHIVO DE JUEGOS","games.title1":"MIS","games.title2":"JUEGOS","games.desc":"Historias, supervivencia, acción y caos.",
+      "games.seriesReborn":"SERIE REBORN","games.inDev":"EN DESARROLLO","games.comingSoon":"PRÓXIMAMENTE",
+      "games.cod1.story":"El mundo cayó. La infección comenzó. Ahora solo queda sobrevivir.",
+      "games.rush.story":"Get ready for an epic 2D platforming adventure set in the universe of City Of Decay: REBORN! Explore a cartoon-inspired world, overcome challenging obstacles, and discover a new side of the City Of Decay universe.",
+      "games.shadow.story":"Entra en el campo de batalla.",
+      "games.flight.story":"El avión está fallando.<br>Los motores están ardiendo.<br>Y ahora depende de ti.",
+      "games.tag.horror":"HORROR","games.tag.survival":"SUPERVIVENCIA","games.tag.story":"HISTORIA","games.tag.shooter":"SHOOTER","games.tag.action":"ACCIÓN","games.tag.zombies":"ZOMBIES","games.tag.multiplayer":"MULTIJUGADOR","games.tag.aviation":"AVIACIÓN","games.tag.chaos":"CAOS","games.tag.platformer":"2D PLATFORMER","games.tag.adventure":"AVENTURA",
+      "lab.eyebrow":"// LABORATORIO","lab.title1":"OTROS","lab.title2":"PROYECTOS","lab.desc":"Prototipos, ideas y proyectos en exploración.",
+      "mini.neon.genre":"Exploración / Misterio","mini.neon.status":"FRACASO","mini.speed.genre":"Carreras / Arcade","mini.speed.status":"FRACASO","mini.brooklyn.genre":"Rol / Multijugador","mini.brooklyn.status":"FRACASO","mini.gun.genre":"Shooter / Acción","mini.gun.status":"SIN UPDATES","mini.roblox.genre":"Supervivencia / Multijugador","mini.roblox.status":"ÉXITO TOTAL",
+      "universe.eyebrow":"// CONEXIÓN DE MUNDOS","universe.title":"EL UNIVERSO DE IMADGAMER","universe.sub":"Cada juego tiene su propia identidad. El universo de ImadGamer sigue creciendo.","universe.motto":"DIFERENTES JUEGOS. DIFERENTES HISTORIAS. UN UNIVERSO.",
+      "updates.eyebrow":"// ÚLTIMAS NOTICIAS","updates.title1":"ÚLTIMAS","updates.title2":"ACTUALIZACIONES","updates.desc":"Lo último sobre los proyectos de ImadGamer.",
+      "updates.shadow3.badge":"// YA DISPONIBLE","updates.shadow3.desc":"La actualización 3 de Shadow Protocol ya está disponible. Los torneos han llegado al campo de batalla. Enfréntate a nuevos desafíos y demuestra quién es el mejor.","updates.shadow3.feat1":"NUEVOS TORNEOS","updates.shadow3.feat2":"SHADOW PROTOCOL","updates.shadow3.feat3":"YA DISPONIBLE","updates.shadow3.feat4":"COMPETITIVO",
+      "updates.badgeReborn3":"// PRÓXIMO CAPÍTULO","updates.reborn3.desc":"La serie REBORN continúa. The Caves llega en 2027.","updates.reborn3.feat1":"SERIE REBORN","updates.reborn3.feat2":"THE CAVES",
+      "updates.card1.date":"🏙️ CAPÍTULO 1","updates.card1.title":"REMASTERIZADO — YA DISPONIBLE","updates.card1.desc":"El Capítulo 1 regresa con un nuevo diseño y una experiencia de terror mejorada. Ya disponible.",
+      "updates.card2.date":"✈️ EN DESARROLLO","updates.card2.title":"AVANCES DEL PROYECTO","updates.card2.desc":"El desarrollo continúa en la experiencia multijugador de aviación llena de caos. Lanzamiento: DICIEMBRE 2026.","updates.card2.status":"DICIEMBRE 2026",
+      "yt.eyebrow":"// CANAL OFICIAL","yt.title1":"▶️ IMADGAMER EN","yt.desc":"Vídeos, gameplays, trailers, actualizaciones, proyectos y mucho más.","yt.btn":"VER CANAL DE YOUTUBE",
+      "yt.card1.label":"// ÚLTIMO VÍDEO","yt.card1.name":"Contenido reciente del canal","yt.card2.label":"// TRAILER","yt.card2.name":"Trailers oficiales","yt.card3.label":"// ACTUALIZACIÓN","yt.card3.name":"Noticias y avances","yt.card.hint":"Estructura lista para vídeo real",
+      "discord.eyebrow":"// COMUNIDAD OFICIAL","discord.title":"💬 ÚNETE A LA COMUNIDAD","discord.sub":"Noticias, actualizaciones, juegos, eventos y comunidad.","discord.btn":"💬 UNIRME AL DISCORD",
+      "social.eyebrow":"// SIGUE EL UNIVERSO","social.title1":"SIGUE EL","social.title2":"UNIVERSO","social.desc":"Toda la actividad de ImadGamer en un solo lugar.",
+      "social.yt.desc":"Vídeos, trailers, gameplays y contenido gaming.","social.yt.btn":"VER CANAL","social.dc.desc":"Únete a la comunidad oficial de ImadGamer.","social.dc.btn":"UNIRSE","social.tt.desc":"Clips, momentos y contenido corto.","social.tt.btn":"SEGUIR","social.tw.desc":"Directos y streams de videojuegos.","social.tw.btn":"VER DIRECTOS",
+      "about.eyebrow":"// PERFIL DEL CREADOR","about.title1":"¿QUIÉN ES","about.title2":"?","about.p1":"ImadGamer es un creador independiente centrado en videojuegos, contenido gaming y mundos originales.","about.p2":"El objetivo es construir experiencias propias, historias auténticas y una comunidad que crezca junto a cada proyecto.",
+      "about.cat1.lbl":"VIDEOJUEGOS","about.cat1.sub":"Proyectos originales","about.cat2.lbl":"CONTENIDO","about.cat2.sub":"Vídeos y directos","about.cat3.lbl":"COMUNIDAD","about.cat3.sub":"Jugadores y seguidores","about.cat4.lbl":"NUEVOS PROYECTOS","about.cat4.sub":"Siempre en marcha",
+      "contact.eyebrow":"// CONTACTO","contact.title":"CONTACTO","contact.desc":"¿Tienes una idea, quieres colaborar o simplemente quieres contactar conmigo?",
+      "footer.brand":"Juegos • Contenido • Comunidad<br>Universo independiente en constante expansión.","footer.nav":"NAVEGAR","footer.community":"COMUNIDAD","footer.about":"SOBRE MÍ","footer.contact":"CONTACTO","footer.follow":"SÍGUEME","footer.copyright":"© 2026 ImadGamer. Todos los derechos reservados.","footer.status":"SISTEMA OPERATIVO",
+      "chapters.eyebrow":"// CITY OF DECAY","chapters.title":"CHAPTERS","chapters.cap2":"CAPÍTULO 02","chapters.reborn2.desc":"The nightmare returns. Welcome back to the abandoned city.","chapters.reborn2.status":"PRÓXIMO CAPÍTULO","chapters.cap3":"CAPÍTULO 03","chapters.reborn3.desc":"The city was just the beginning... The nightmare continues.","chapters.reborn3.status":"PRÓXIMAMENTE","chapters.back":"VOLVER A CHAPTERS",
+      "chapters.reborn2.p1":"La pesadilla regresa.",
+      "chapters.reborn2.p2":"Bienvenido de nuevo a la ciudad abandonada, un lugar lleno de secretos, experimentos olvidados y entidades terroríficas que esperan en la oscuridad. Tu misión es simple: explora las calles en ruinas, busca llaves, desbloquea áreas selladas y encuentra la forma de llegar al metro. Pero escapar no será fácil. Algo te está observando.",
+      "chapters.reborn2.p3":"Mientras exploras la ciudad, descubrirás secretos ocultos, notas misteriosas y pistas que revelan más sobre los eventos que destruyeron este lugar. Cada puerta cerrada podría esconder algo importante, y cada pasillo podría acercarte a la verdad — o al peligro.",
+      "chapters.reborn2.p4":"Ten cuidado. Dudge sigue ahí fuera, y la oscuridad no está tan vacía como parece. Mantén tu linterna lista, presta atención a tu entorno y nunca asumas que estás solo. Otras entidades pueden estar más cerca de lo que crees.",
+      "chapters.reborn2.p5":"Con nuevos desafíos, encuentros terroríficos y secretos esperando a ser descubiertos, CITY OF DECAY: REBORN 2 te lleva más profundo al misterioso mundo de City Of Decay.",
+      "chapters.reborn2.p6":"¿Encontrarás la salida, o la ciudad se convertirá en tu destino final?",
+      "chapters.reborn2.p7":"La pesadilla está lejos de terminar.",
+      "chapters.detail.credit":"Desarrollado por ImadGamer14.",
+      "chapters.reborn3.p1":"LA CIUDAD FUE SOLO EL COMIENZO...",
+      "chapters.reborn3.p2":"Muy por debajo de la ciudad abandonada yace un mundo subterráneo olvidado. Un lugar donde la oscuridad nunca termina, donde extraños experimentos fueron abandonados, y donde algo ha estado esperando durante años.",
+      "chapters.reborn3.p3":"Pensaste que habías escapado de la pesadilla. Estabas equivocado.",
+      "chapters.reborn3.p4":"Explora enormes cuevas subterráneas, descubre secretos terroríficos, desvela experimentos clasificados y enfréntate a criaturas que nunca debieron existir.",
+      "chapters.reborn3.p5":"Pero ten cuidado... <strong>NO ESTÁS SOLO AHÍ ABAJO.</strong>",
+      "chapters.reborn3.p6":"Cada túnel esconde un misterio. Cada sonido podría ser tu última advertencia. Y en lo profundo de las cuevas, algo mucho más peligroso que cualquier cosa que hayas enfrentado antes está esperando.",
+      "chapters.reborn3.p7":"¿Puedes sobrevivir a la oscuridad? ¿Puedes descubrir la verdad?",
+      "chapters.reborn3.p8":"CUANTO MÁS PROFUNDO VAYAS, PEOR SE PONE.",
+      "chapters.reborn3.p9":"LA PESADILLA CONTINÚA.",
+      "chapters.reborn3.credit":"IMADGAMER14 PRESENTA",
+      "chapters.reborn3.title":"CITY OF DECAY: REBORN 3 — THE CAVES"
+    },
+    en:{
+      "nav.home":"HOME","nav.games":"GAMES","nav.universe":"UNIVERSE","nav.updates":"UPDATES","nav.community":"COMMUNITY","nav.social":"SOCIAL","nav.discord":"💬 DISCORD","nav.discordName":"DISCORD",
+      "hud.universe":"IMADGAMER UNIVERSE",
+      "hero.eyebrow":"// INDEPENDENT STUDIO","hero.tagline":"GAMES. STORIES. CHAOS.","hero.sub":"The game universe created by ImadGamer.","hero.btnExplore":"EXPLORE GAMES","hero.btnDiscord":"JOIN DISCORD","hero.scroll":"SCROLL TO EXPLORE",
+      "announce.new":"AVAILABLE NOW","announce.text":"UPDATE 3 SHADOW PROTOCOL","announce.cta":"▶ PLAY NOW",
+      "games.eyebrow":"// GAME ARCHIVE","games.title1":"MY","games.title2":"GAMES","games.desc":"Stories, survival, action and chaos.",
+      "games.seriesReborn":"REBORN SERIES","games.inDev":"IN DEVELOPMENT","games.comingSoon":"COMING SOON",
+      "games.cod1.story":"The world fell. The infection began. Now all that's left is to survive.",
+      "games.rush.story":"Get ready for an epic 2D platforming adventure set in the universe of City Of Decay: REBORN! Explore a cartoon-inspired world, overcome challenging obstacles, and discover a new side of the City Of Decay universe.",
+      "games.shadow.story":"Enter the battlefield.",
+      "games.flight.story":"The plane is failing.<br>The engines are burning.<br>And now it's up to you.",
+      "games.tag.horror":"HORROR","games.tag.survival":"SURVIVAL","games.tag.story":"STORY","games.tag.shooter":"SHOOTER","games.tag.action":"ACTION","games.tag.zombies":"ZOMBIES","games.tag.multiplayer":"MULTIPLAYER","games.tag.aviation":"AVIATION","games.tag.chaos":"CHAOS","games.tag.platformer":"2D PLATFORMER","games.tag.adventure":"ADVENTURE",
+      "lab.eyebrow":"// LABORATORY","lab.title1":"OTHER","lab.title2":"PROJECTS","lab.desc":"Prototypes, ideas and projects in exploration.",
+      "mini.neon.genre":"Exploration / Mystery","mini.neon.status":"FAILURE","mini.speed.genre":"Racing / Arcade","mini.speed.status":"FAILURE","mini.brooklyn.genre":"Roleplay / Multiplayer","mini.brooklyn.status":"FAILURE","mini.gun.genre":"Shooter / Action","mini.gun.status":"NO UPDATES","mini.roblox.genre":"Survival / Multiplayer","mini.roblox.status":"TOTAL SUCCESS",
+      "universe.eyebrow":"// CONNECTION OF WORLDS","universe.title":"THE IMADGAMER UNIVERSE","universe.sub":"Each game has its own identity. The ImadGamer universe keeps growing.","universe.motto":"DIFFERENT GAMES. DIFFERENT STORIES. ONE UNIVERSE.",
+      "updates.eyebrow":"// LATEST NEWS","updates.title1":"LATEST","updates.title2":"UPDATES","updates.desc":"The latest on ImadGamer projects.",
+      "updates.shadow3.badge":"// AVAILABLE NOW","updates.shadow3.desc":"Shadow Protocol update 3 is now available. Tournaments have arrived on the battlefield. Face new challenges and prove who is the best.","updates.shadow3.feat1":"NEW TOURNAMENTS","updates.shadow3.feat2":"SHADOW PROTOCOL","updates.shadow3.feat3":"AVAILABLE NOW","updates.shadow3.feat4":"COMPETITIVE",
+      "updates.badgeReborn3":"// NEXT CHAPTER","updates.reborn3.desc":"The REBORN series continues. The Caves arrives in 2027.","updates.reborn3.feat1":"REBORN SERIES","updates.reborn3.feat2":"THE CAVES",
+      "updates.card1.date":"🏙️ CHAPTER 1","updates.card1.title":"REMASTERED — AVAILABLE NOW","updates.card1.desc":"Chapter 1 returns with a new design and an improved horror experience. Available now.",
+      "updates.card2.date":"✈️ IN DEVELOPMENT","updates.card2.title":"PROJECT PROGRESS","updates.card2.desc":"Development continues on the chaotic multiplayer aviation experience. Release: DECEMBER 2026.","updates.card2.status":"DECEMBER 2026",
+      "yt.eyebrow":"// OFFICIAL CHANNEL","yt.title1":"▶️ IMADGAMER ON","yt.desc":"Videos, gameplay, trailers, updates, projects and much more.","yt.btn":"VIEW YOUTUBE CHANNEL",
+      "yt.card1.label":"// LATEST VIDEO","yt.card1.name":"Recent channel content","yt.card2.label":"// TRAILER","yt.card2.name":"Official trailers","yt.card3.label":"// UPDATE","yt.card3.name":"News and progress","yt.card.hint":"Ready for real video",
+      "discord.eyebrow":"// OFFICIAL COMMUNITY","discord.title":"💬 JOIN THE COMMUNITY","discord.sub":"News, updates, games, events and community.","discord.btn":"💬 JOIN DISCORD",
+      "social.eyebrow":"// FOLLOW THE UNIVERSE","social.title1":"FOLLOW THE","social.title2":"UNIVERSE","social.desc":"All ImadGamer activity in one place.",
+      "social.yt.desc":"Videos, trailers, gameplay and gaming content.","social.yt.btn":"VIEW CHANNEL","social.dc.desc":"Join the official ImadGamer community.","social.dc.btn":"JOIN","social.tt.desc":"Clips, moments and short content.","social.tt.btn":"FOLLOW","social.tw.desc":"Live streams and gameplay.","social.tw.btn":"WATCH LIVE",
+      "about.eyebrow":"// CREATOR PROFILE","about.title1":"WHO IS","about.title2":"?","about.p1":"ImadGamer is an independent creator focused on video games, gaming content and original worlds.","about.p2":"The goal is to build original experiences, authentic stories and a community that grows with each project.",
+      "about.cat1.lbl":"VIDEO GAMES","about.cat1.sub":"Original projects","about.cat2.lbl":"CONTENT","about.cat2.sub":"Videos and streams","about.cat3.lbl":"COMMUNITY","about.cat3.sub":"Players and followers","about.cat4.lbl":"NEW PROJECTS","about.cat4.sub":"Always in motion",
+      "contact.eyebrow":"// CONTACT","contact.title":"CONTACT","contact.desc":"Got an idea, want to collaborate, or just want to reach out?",
+      "footer.brand":"Games • Content • Community<br>Independent universe constantly expanding.","footer.nav":"NAVIGATE","footer.community":"COMMUNITY","footer.about":"ABOUT ME","footer.contact":"CONTACT","footer.follow":"FOLLOW ME","footer.copyright":"© 2026 ImadGamer. All rights reserved.","footer.status":"SYSTEM ONLINE",
+      "chapters.eyebrow":"// CITY OF DECAY","chapters.title":"CHAPTERS","chapters.cap2":"CHAPTER 02","chapters.reborn2.desc":"The nightmare returns. Welcome back to the abandoned city.","chapters.reborn2.status":"NEXT CHAPTER","chapters.cap3":"CHAPTER 03","chapters.reborn3.desc":"The city was just the beginning... The nightmare continues.","chapters.reborn3.status":"COMING SOON","chapters.back":"BACK TO CHAPTERS",
+      "chapters.reborn2.p1":"The nightmare returns.",
+      "chapters.reborn2.p2":"Welcome back to the abandoned city, a place filled with secrets, forgotten experiments, and terrifying entities waiting in the darkness. Your mission is simple: explore the ruined streets, search for keys, unlock sealed areas, and find a way to reach the subway. But escaping won't be easy. Something is watching you.",
+      "chapters.reborn2.p3":"As you explore the city, you will discover hidden secrets, mysterious notes, and clues that reveal more about the events that destroyed this place. Every locked door could hide something important, and every corridor could bring you closer to the truth — or into danger.",
+      "chapters.reborn2.p4":"Be careful. Dudge is still out there, and the darkness is not as empty as it seems. Keep your flashlight ready, pay attention to your surroundings, and never assume you're alone. Other entities may be closer than you think.",
+      "chapters.reborn2.p5":"With new challenges, terrifying encounters, and secrets waiting to be discovered, CITY OF DECAY: REBORN 2 takes you deeper into the mysterious world of City Of Decay.",
+      "chapters.reborn2.p6":"Will you find the way out, or will the city become your final destination?",
+      "chapters.reborn2.p7":"The nightmare is far from over.",
+      "chapters.detail.credit":"Developed by ImadGamer14.",
+      "chapters.reborn3.p1":"THE CITY WAS JUST THE BEGINNING...",
+      "chapters.reborn3.p2":"Far beneath the abandoned city lies a forgotten underground world. A place where darkness never ends, where strange experiments were abandoned, and where something has been waiting for years.",
+      "chapters.reborn3.p3":"You thought you had escaped the nightmare. You were wrong.",
+      "chapters.reborn3.p4":"Explore enormous underground caves, discover terrifying secrets, uncover classified experiments and face creatures that were never supposed to exist.",
+      "chapters.reborn3.p5":"But be careful... <strong>YOU ARE NOT ALONE DOWN THERE.</strong>",
+      "chapters.reborn3.p6":"Every tunnel hides a mystery. Every sound could be your last warning. And deep inside the caves, something far more dangerous than anything you've faced before is waiting.",
+      "chapters.reborn3.p7":"Can you survive the darkness? Can you uncover the truth?",
+      "chapters.reborn3.p8":"THE DEEPER YOU GO, THE WORSE IT GETS.",
+      "chapters.reborn3.p9":"THE NIGHTMARE CONTINUES.",
+      "chapters.reborn3.credit":"IMADGAMER14 PRESENTS",
+      "chapters.reborn3.title":"CITY OF DECAY: REBORN 3 — THE CAVES"
+    }
+  };
+
+  const langBtns=document.querySelectorAll('.lang-btn');const htmlEl=document.documentElement;
+
+  function applyLang(lang){
+    const dict=translations[lang]||translations.es;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key=el.getAttribute('data-i18n');
+      if(dict[key]!==undefined){
+        if(dict[key].indexOf('<br>')!==-1||dict[key].indexOf('<strong>')!==-1){el.innerHTML=dict[key]}
+        else{el.textContent=dict[key]}
+      }
+    });
+    htmlEl.setAttribute('lang',lang);
+    langBtns.forEach(b=>{b.classList.toggle('active',b.getAttribute('data-lang')===lang)});
+    try{localStorage.setItem('imadgamer-lang',lang)}catch(e){}
+  }
+
+  let saved=null;try{saved=localStorage.getItem('imadgamer-lang')}catch(e){}
+  let initial=saved;
+  if(!initial){const nav=(navigator.language||'es').toLowerCase();initial=nav.startsWith('en')?'en':'es'}
+  applyLang(initial);
+
+  langBtns.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const lang=btn.getAttribute('data-lang');
+      if(btn.classList.contains('active'))return;
+      btn.style.transform='scale(1.15)';
+      setTimeout(()=>{btn.style.transform=''},220);
+      applyLang(lang);
+    });
+  });
+})();
+</script>
+</body>
+</html>
